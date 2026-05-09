@@ -227,7 +227,13 @@ The quiz is critical — it verifies genuine understanding, not just reading.
    - Behavior questions (what happens when X occurs / what follows from Y?)
    - Boundary questions (what prevents X / what are the limits?)
    - System thinking questions (if you change X, what cascading effect?)
+   - Application questions (if you needed to add/change/use X, which files/concepts/flows would
+     you touch and what would you watch for?)
 8. **localStorage sync** — write quiz results to shared coverage state
+
+System thinking questions test second-order consequences. Application questions test the action a
+reader would take first. Include at least one application question when the domain has concrete use
+cases.
 
 #### Quiz Implementation
 ```html
@@ -243,6 +249,31 @@ The quiz is critical — it verifies genuine understanding, not just reading.
     Explanation referencing <code>specific source</code>.
   </div>
 </div>
+
+<div class="quiz-card" data-quiz="q5">
+  <h4>Q5: Application</h4>
+  <p class="question">If you needed to add SSO login, which source areas would you inspect first?</p>
+  <ul class="quiz-options">
+    <li onclick="selectAnswer(this,'q5',false)">Only the database schema, because login is persisted there</li>
+    <li onclick="selectAnswer(this,'q5',true)">The auth middleware, user routes, server middleware chain, and auth flow</li>
+    <li onclick="selectAnswer(this,'q5',false)">Only the route handler, because middleware already handles all auth modes</li>
+  </ul>
+  <div class="quiz-explanation" id="q5-exp">
+    Application questions should map to every relevant source, for example
+    <code>src/middleware/auth.ts</code>, <code>src/routes/users.ts</code>, and the auth flow.
+  </div>
+</div>
+```
+
+Map application questions to the files, concepts, and flows needed to take the action:
+```json
+"q5": {
+  "type": "application",
+  "question": "If you needed to add SSO login, which files and flows would you inspect first?",
+  "concepts": ["architecture", "auth", "rest-patterns"],
+  "flows": ["auth-flow", "crud-flow"],
+  "files": ["src/server.ts", "src/routes/users.ts", "src/middleware/auth.ts", "src/db/schema.ts"]
+}
 ```
 
 #### Quiz JavaScript (with Coverage Sync)

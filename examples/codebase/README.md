@@ -8,4 +8,4 @@ This example manifest demonstrates cognitive coverage tracking for a typical Typ
 - 4 source files
 - 3 concepts (architecture, auth, REST patterns)
 - 2 data flows (auth flow, CRUD flow)
-- 4 quiz questions mapped to concepts and flows
+- 5 quiz questions mapped to concepts and flows
