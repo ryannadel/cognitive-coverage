@@ -1,0 +1,44 @@
+﻿{
+  "version": 1,
+  "project": "example-rest-api",
+  "domain": "codebase",
+  "generatedAt": "2025-01-15T10:00:00Z",
+  "updatedAt": null,
+  "labels": {
+    "files": "Source Files",
+    "concepts": "Concepts & Patterns",
+    "flows": "Data Flows"
+  },
+  "statusLabels": {
+    "files": ["uncovered", "read", "understood"],
+    "concepts": ["uncovered", "taught", "quiz-verified"],
+    "flows": ["uncovered", "traced", "verified"]
+  },
+  "summary": {
+    "files": { "total": 4, "covered": 0, "percentage": 0 },
+    "concepts": { "total": 3, "covered": 0, "percentage": 0 },
+    "flows": { "total": 2, "covered": 0, "percentage": 0 },
+    "overall": 0
+  },
+  "files": [
+    { "path": "src/server.ts", "status": "uncovered", "description": "Express server setup and middleware chain", "relatedConcepts": ["architecture"], "complexity": "core", "guideSection": "architecture", "updatedAt": null },
+    { "path": "src/routes/users.ts", "status": "uncovered", "description": "User CRUD endpoints with validation", "relatedConcepts": ["rest-patterns", "auth"], "complexity": "core", "guideSection": "routes", "updatedAt": null },
+    { "path": "src/middleware/auth.ts", "status": "uncovered", "description": "JWT verification and role-based access", "relatedConcepts": ["auth"], "complexity": "core", "guideSection": "auth", "updatedAt": null },
+    { "path": "src/db/schema.ts", "status": "uncovered", "description": "Database schema and migration logic", "relatedConcepts": ["architecture"], "complexity": "supporting", "guideSection": "data-model", "updatedAt": null }
+  ],
+  "concepts": [
+    { "id": "architecture", "name": "System Architecture", "description": "Express + TypeScript + PostgreSQL stack with layered middleware", "status": "uncovered", "files": ["src/server.ts", "src/db/schema.ts"], "quizIds": ["q1"], "guideSection": "architecture", "updatedAt": null },
+    { "id": "auth", "name": "Authentication & Authorization", "description": "JWT-based auth with role hierarchy and middleware guards", "status": "uncovered", "files": ["src/middleware/auth.ts"], "quizIds": ["q2", "q3"], "guideSection": "auth", "updatedAt": null },
+    { "id": "rest-patterns", "name": "REST API Patterns", "description": "Resource routing, validation, error handling, pagination", "status": "uncovered", "files": ["src/routes/users.ts"], "quizIds": ["q4"], "guideSection": "routes", "updatedAt": null }
+  ],
+  "flows": [
+    { "id": "auth-flow", "name": "Authentication Flow", "description": "Login request → credential check → JWT issue → subsequent requests verified", "status": "uncovered", "steps": [{"description": "Client sends credentials", "file": "src/routes/users.ts"}, {"description": "Server validates and issues JWT", "file": "src/middleware/auth.ts"}, {"description": "Client includes token in header", "file": "src/middleware/auth.ts"}, {"description": "Middleware verifies on each request", "file": "src/middleware/auth.ts"}], "quizIds": ["q2"], "guideSection": "auth", "updatedAt": null },
+    { "id": "crud-flow", "name": "CRUD Request Flow", "description": "HTTP request → auth middleware → validation → database → response", "status": "uncovered", "steps": [{"description": "Parse and validate request", "file": "src/routes/users.ts"}, {"description": "Check authorization", "file": "src/middleware/auth.ts"}, {"description": "Execute database operation", "file": "src/db/schema.ts"}, {"description": "Format and return response", "file": "src/routes/users.ts"}], "quizIds": ["q4"], "guideSection": "routes", "updatedAt": null }
+  ],
+  "quizMapping": {
+    "q1": { "concepts": ["architecture"], "flows": [], "files": ["src/server.ts"] },
+    "q2": { "concepts": ["auth"], "flows": ["auth-flow"], "files": ["src/middleware/auth.ts"] },
+    "q3": { "concepts": ["auth"], "flows": [], "files": ["src/middleware/auth.ts"] },
+    "q4": { "concepts": ["rest-patterns"], "flows": ["crud-flow"], "files": ["src/routes/users.ts"] }
+  }
+}

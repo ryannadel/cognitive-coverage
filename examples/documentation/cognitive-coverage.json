@@ -1,0 +1,42 @@
+﻿{
+  "version": 1,
+  "project": "platform-engineering-wiki",
+  "domain": "documentation",
+  "generatedAt": "2025-01-15T10:00:00Z",
+  "updatedAt": null,
+  "labels": {
+    "files": "Documents & Pages",
+    "concepts": "Topics & Processes",
+    "flows": "Workflows & Procedures"
+  },
+  "statusLabels": {
+    "files": ["unread", "browsed", "internalized"],
+    "concepts": ["unfamiliar", "reviewed", "quiz-verified"],
+    "flows": ["unknown", "walked-through", "verified"]
+  },
+  "summary": {
+    "files": { "total": 3, "covered": 0, "percentage": 0 },
+    "concepts": { "total": 3, "covered": 0, "percentage": 0 },
+    "flows": { "total": 2, "covered": 0, "percentage": 0 },
+    "overall": 0
+  },
+  "files": [
+    { "path": "docs/architecture-overview.md", "status": "unread", "description": "High-level system architecture and design principles", "relatedConcepts": ["architecture"], "complexity": "core", "guideSection": "architecture", "updatedAt": null },
+    { "path": "docs/deployment-guide.md", "status": "unread", "description": "Step-by-step deployment procedures and rollback plans", "relatedConcepts": ["deployment", "incident-response"], "complexity": "core", "guideSection": "deployment", "updatedAt": null },
+    { "path": "docs/runbook-incidents.md", "status": "unread", "description": "Incident response runbook with escalation paths", "relatedConcepts": ["incident-response"], "complexity": "core", "guideSection": "incidents", "updatedAt": null }
+  ],
+  "concepts": [
+    { "id": "architecture", "name": "Platform Architecture", "description": "Microservices topology, service mesh, and infrastructure-as-code patterns", "status": "unfamiliar", "files": ["docs/architecture-overview.md"], "quizIds": ["q1"], "guideSection": "architecture", "updatedAt": null },
+    { "id": "deployment", "name": "Deployment Process", "description": "CI/CD pipeline stages, canary releases, and rollback procedures", "status": "unfamiliar", "files": ["docs/deployment-guide.md"], "quizIds": ["q2"], "guideSection": "deployment", "updatedAt": null },
+    { "id": "incident-response", "name": "Incident Response", "description": "Severity classification, escalation paths, post-mortem process", "status": "unfamiliar", "files": ["docs/runbook-incidents.md"], "quizIds": ["q3"], "guideSection": "incidents", "updatedAt": null }
+  ],
+  "flows": [
+    { "id": "deploy-flow", "name": "Production Deployment Flow", "description": "Code merge to production traffic serving", "status": "unknown", "steps": [{"description": "PR merged to main", "file": "docs/deployment-guide.md"}, {"description": "CI pipeline runs tests", "file": "docs/deployment-guide.md"}, {"description": "Canary deployment to 5%", "file": "docs/deployment-guide.md"}, {"description": "Monitor metrics for 30min", "file": "docs/deployment-guide.md"}, {"description": "Full rollout or rollback", "file": "docs/deployment-guide.md"}], "quizIds": ["q2"], "guideSection": "deployment", "updatedAt": null },
+    { "id": "incident-flow", "name": "Incident Response Flow", "description": "Alert fired to post-mortem completed", "status": "unknown", "steps": [{"description": "Alert fires in PagerDuty", "file": "docs/runbook-incidents.md"}, {"description": "On-call acknowledges and classifies severity", "file": "docs/runbook-incidents.md"}, {"description": "Assemble response team if P1/P2", "file": "docs/runbook-incidents.md"}, {"description": "Mitigate and resolve", "file": "docs/runbook-incidents.md"}, {"description": "Write post-mortem within 48h", "file": "docs/runbook-incidents.md"}], "quizIds": ["q3"], "guideSection": "incidents", "updatedAt": null }
+  ],
+  "quizMapping": {
+    "q1": { "concepts": ["architecture"], "flows": [], "files": ["docs/architecture-overview.md"] },
+    "q2": { "concepts": ["deployment"], "flows": ["deploy-flow"], "files": ["docs/deployment-guide.md"] },
+    "q3": { "concepts": ["incident-response"], "flows": ["incident-flow"], "files": ["docs/runbook-incidents.md"] }
+  }
+}

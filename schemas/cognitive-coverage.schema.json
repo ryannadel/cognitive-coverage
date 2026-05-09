@@ -1,0 +1,131 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cognitive-coverage/cognitive-coverage/schemas/cognitive-coverage.schema.json",
+  "title": "Cognitive Coverage Manifest",
+  "description": "Tracks cognitive understanding across files, concepts, and flows for any project domain.",
+  "type": "object",
+  "required": ["version", "project", "domain", "summary", "files", "concepts", "flows", "quizMapping"],
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "project": { "type": "string", "description": "Human-readable project name" },
+    "domain": {
+      "type": "string",
+      "enum": ["codebase", "research", "documentation", "knowledge"],
+      "description": "The domain type determines status labels and terminology"
+    },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": ["string", "null"], "format": "date-time" },
+    "labels": {
+      "type": "object",
+      "required": ["files", "concepts", "flows"],
+      "properties": {
+        "files": { "type": "string" },
+        "concepts": { "type": "string" },
+        "flows": { "type": "string" }
+      }
+    },
+    "statusLabels": {
+      "type": "object",
+      "required": ["files", "concepts", "flows"],
+      "properties": {
+        "files": { "type": "array", "items": { "type": "string" }, "minItems": 3, "maxItems": 3 },
+        "concepts": { "type": "array", "items": { "type": "string" }, "minItems": 3, "maxItems": 3 },
+        "flows": { "type": "array", "items": { "type": "string" }, "minItems": 3, "maxItems": 3 }
+      },
+      "description": "Three progression levels per axis: [uncovered, partial, complete]"
+    },
+    "summary": {
+      "type": "object",
+      "required": ["files", "concepts", "flows", "overall"],
+      "properties": {
+        "files": { "$ref": "#/$defs/axisSummary" },
+        "concepts": { "$ref": "#/$defs/axisSummary" },
+        "flows": { "$ref": "#/$defs/axisSummary" },
+        "overall": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "status", "description"],
+        "properties": {
+          "path": { "type": "string" },
+          "status": { "type": "string" },
+          "description": { "type": "string" },
+          "relatedConcepts": { "type": "array", "items": { "type": "string" } },
+          "complexity": { "type": "string", "enum": ["core", "supporting", "config"] },
+          "guideSection": { "type": "string" },
+          "updatedAt": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "description", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" },
+          "files": { "type": "array", "items": { "type": "string" } },
+          "quizIds": { "type": "array", "items": { "type": "string" } },
+          "guideSection": { "type": "string" },
+          "updatedAt": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "description", "status", "steps"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["description", "file"],
+              "properties": {
+                "description": { "type": "string" },
+                "file": { "type": "string" }
+              }
+            }
+          },
+          "quizIds": { "type": "array", "items": { "type": "string" } },
+          "guideSection": { "type": "string" },
+          "updatedAt": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "quizMapping": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["concepts", "flows", "files"],
+        "properties": {
+          "concepts": { "type": "array", "items": { "type": "string" } },
+          "flows": { "type": "array", "items": { "type": "string" } },
+          "files": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "axisSummary": {
+      "type": "object",
+      "required": ["total", "covered", "percentage"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "covered": { "type": "integer", "minimum": 0 },
+        "percentage": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    }
+  }
+}
