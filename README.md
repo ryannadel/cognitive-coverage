@@ -31,6 +31,10 @@ Cognitive Coverage closes that gap.
 
 By default, all generated outputs are placed in a `cognitive-coverage/` folder in the target project. The launcher is the entry point for opening the artifact set.
 
+### Reliable Artifact Writing
+
+The skill includes shell-safe writing guidance so agents do not stall while creating large HTML files. In particular, agents are told not to use Bash heredocs such as `python - <<'PY'` in PowerShell, to avoid giant one-line shell strings, and to fall back to small deterministic chunks or short temporary writer scripts when native file-write tools are unavailable.
+
 ### Large Codebases and Knowledge Bases
 
 For large projects, Cognitive Coverage switches from a single exhaustive pass to **Large Corpus Mode**:

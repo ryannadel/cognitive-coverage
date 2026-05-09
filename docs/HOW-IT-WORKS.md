@@ -69,6 +69,21 @@ A visual status board that reads the manifest and shows:
 
 A lightweight landing page that links to the teaching guide, dashboard, and manifest. The coding agent opens this file automatically after generation so users can start from one obvious entry point. By default, all generated outputs live together in the target project's `cognitive-coverage/` folder.
 
+## Artifact Writing Reliability
+
+The skill requires four generated files, so artifact writing must be treated as part of the deliverable rather than a best-effort final step. The most common failure mode is using shell syntax that does not match the active terminal, especially Bash heredocs such as `python - <<'PY'` while running in PowerShell.
+
+The skill now instructs agents to:
+
+- Detect the active shell before choosing multiline syntax
+- Avoid Bash heredocs in PowerShell
+- Avoid placing full HTML documents in one giant quoted shell argument
+- Prefer native file-write tools, then safe chunked terminal writes, then short temporary writer scripts
+- Keep HTML chunks small and verify every artifact before reporting success
+- Generate the launcher only after the guide, manifest, and dashboard are present
+
+This makes artifact generation recoverable: if one write method fails, the agent should switch to a safer fallback and still complete the files.
+
 ## How the Pieces Connect
 
 ```

@@ -655,6 +655,62 @@ The HTML files will typically be 20-50KB and may be larger in Large Corpus Mode.
 
 If a write attempt stalls or fails, report the failed method only after trying a safer fallback. The expected successful outcome is always the completed artifact files, not just a completed analysis.
 
+### Shell-Safe Artifact Protocol
+
+Follow this protocol when writing artifacts through a terminal:
+
+1. **Identify the shell before choosing syntax.** PowerShell, Bash, and cmd.exe have different multiline rules.
+2. **Never use Bash heredoc syntax in PowerShell.** Commands like `python - <<'PY'`, `cat <<EOF`, and `tee <<EOF` are Bash-only and can stall or fail in PowerShell.
+3. **Do not place full HTML documents inside one shell argument.** Long quoted strings are fragile and hard to recover when quoting breaks.
+4. **Use a temporary writer only as a controlled fallback.** Put it outside the target project when possible, keep it short, and delete it after the artifacts are verified.
+5. **Write all required artifacts before opening anything.** Do not open the browser or report success until the guide, manifest, dashboard, and launcher all exist.
+
+Preferred terminal fallback patterns:
+
+```powershell
+# PowerShell-safe chunk writing. Use Set-Content for the first chunk and
+# Add-Content for later chunks. Do not use Bash-style << heredocs here.
+$out = Join-Path (Get-Location) 'cognitive-coverage'
+New-Item -ItemType Directory -Force -Path $out | Out-Null
+$target = Join-Path $out 'learning-guide.html'
+Set-Content -Path $target -Encoding utf8 -Value @'
+<!doctype html>
+<!-- first chunk, keep under roughly 8KB -->
+'@
+Add-Content -Path $target -Encoding utf8 -Value @'
+<!-- next chunk -->
+</html>
+'@
+```
+
+```bash
+# Bash-safe chunk writing. Only use this in an actual Bash/sh environment.
+mkdir -p cognitive-coverage
+cat > cognitive-coverage/learning-guide.html <<'HTML'
+<!doctype html>
+<!-- first chunk, keep under roughly 8KB -->
+HTML
+cat >> cognitive-coverage/learning-guide.html <<'HTML'
+<!-- next chunk -->
+</html>
+HTML
+```
+
+If the active shell is ambiguous or previous multiline writing failed, prefer a base64 or JSON-chunk writer in the available runtime:
+
+```python
+from pathlib import Path
+
+out = Path("cognitive-coverage")
+out.mkdir(exist_ok=True)
+target = out / "learning-guide.html"
+chunks = [
+    "<!doctype html>\n",
+    "<!-- next escaped chunk -->\n</html>\n",
+]
+target.write_text("".join(chunks), encoding="utf-8")
+```
+
 ---
 
 ## Quality Checklist
