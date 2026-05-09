@@ -14,7 +14,7 @@ description: >
 
 # Cognitive Coverage — Skill Instructions
 
-You generate a **cognitive coverage system** — three coordinated artifacts that help people build genuine understanding of projects, codebases, research corpora, or documentation they didn't create.
+You generate a **cognitive coverage system** — coordinated artifacts that help people build genuine understanding of projects, codebases, research corpora, or documentation they didn't create.
 
 ## Philosophy
 
@@ -26,15 +26,16 @@ You generate a **cognitive coverage system** — three coordinated artifacts tha
 > Cognitive coverage closes that gap by producing structured, quiz-verified learning materials
 > anchored to the actual source material.
 
-## The Three Artifacts
+## The Artifacts
 
 | # | Artifact | File | Purpose |
 |---|----------|------|---------|
 | 1 | Teaching Guide | `learning-guide.html` | Interactive HTML with sections, code/content snippets, mental models, quiz |
 | 2 | Coverage Manifest | `cognitive-coverage.json` | Machine-readable inventory of what needs to be understood |
 | 3 | Coverage Dashboard | `cognitive-coverage.html` | Visual status board with gap analysis and teaching guide links |
+| 4 | Artifact Launcher | `cognitive-coverage-open.html` | Lightweight landing page that links to every generated artifact |
 
-Generate them in order: Guide → Manifest → Dashboard.
+Generate them in order: Guide → Manifest → Dashboard → Artifact Launcher. After verification, automatically open `cognitive-coverage-open.html` in the user's default browser.
 
 ---
 
@@ -574,6 +575,36 @@ When `areas` or `modules` are present, the dashboard MUST render them as the top
 
 ---
 
+## Phase 6: Artifact Launcher (`cognitive-coverage-open.html`)
+
+Generate a small self-contained HTML landing page that makes every output easy to open after generation.
+
+### Launcher Requirements
+1. Link to `learning-guide.html` as the primary "Start learning" action.
+2. Link to `cognitive-coverage.html` as the dashboard/status action.
+3. Link to `cognitive-coverage.json` as the machine-readable manifest.
+4. Include a short "Generated files" section listing all artifact filenames.
+5. Keep the file dependency-free and safe to open directly from disk.
+6. Use relative links only, so the artifact set remains portable if the user moves the folder.
+
+### Automatic Open
+After writing and verifying all artifacts, attempt to open `cognitive-coverage-open.html` automatically using the host OS default browser:
+
+```bash
+# macOS
+open cognitive-coverage-open.html
+
+# Windows PowerShell
+Start-Process .\cognitive-coverage-open.html
+
+# Linux / WSL
+xdg-open cognitive-coverage-open.html
+```
+
+Use the command appropriate for the current environment. If automatic opening fails because the environment is headless, remote, or lacks a browser, do not treat that as generation failure. Instead, clearly tell the user which file to open manually and include the absolute or relative path.
+
+---
+
 ## Writing Style
 
 1. **Teach, don't document.** Use "here's how to think about it" not API-reference style.
@@ -609,12 +640,14 @@ The HTML files will typically be 20-50KB. Due to shell/tool limitations with lar
 
 1. **Write in parts** — Break each HTML file into 3-6 chunks using file append operations.
 2. **Verify** each file after writing: check file size, first lines, last lines.
-3. Save all three files in the project root (or user-specified directory):
+3. Save all artifacts in the project root (or user-specified directory):
    - `learning-guide.html`
    - `cognitive-coverage.json`
    - `cognitive-coverage.html`
+   - `cognitive-coverage-open.html`
 4. In Large Corpus Mode, also create focused modules under:
    - `learning-guides/<module-id>.html`
+5. **Open the launcher** — Once verification passes, open `cognitive-coverage-open.html` automatically using the current OS default-browser command.
 
 ---
 
@@ -648,3 +681,8 @@ Before delivering, verify:
 - [ ] Export produces valid JSON
 - [ ] localStorage sync reads quiz results on load
 - [ ] Status terminology matches the domain
+
+### Artifact Launcher
+- [ ] Links to the teaching guide, dashboard, and manifest with relative paths
+- [ ] Explains which artifact to open first
+- [ ] Opens automatically after generation, or the user is given a clear manual path if auto-open is unavailable

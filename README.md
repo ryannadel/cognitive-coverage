@@ -2,7 +2,7 @@
 
 **Like test coverage, but for understanding.**
 
-Cognitive Coverage is a skill for AI coding agents that generates a measurement and learning system for any project — codebases, research papers, documentation wikis, or general knowledge domains. It produces three coordinated artifacts that help you track, teach, and verify genuine system understanding.
+Cognitive Coverage is a skill for AI coding agents that generates a measurement and learning system for any project — codebases, research papers, documentation wikis, or general knowledge domains. It produces coordinated artifacts that help you track, teach, verify, and quickly open genuine system understanding.
 
 Works with any AI coding agent that supports custom instructions, including:
 - **GitHub Copilot** (as a Copilot skill)
@@ -27,6 +27,7 @@ Cognitive Coverage closes that gap.
 | **Teaching Guide** | `learning-guide.html` | Interactive HTML with sections, source snippets, mental models, and quiz |
 | **Coverage Manifest** | `cognitive-coverage.json` | Machine-readable inventory tracking understanding across 3 axes |
 | **Coverage Dashboard** | `cognitive-coverage.html` | Visual status board with gap analysis and teaching guide links |
+| **Artifact Launcher** | `cognitive-coverage-open.html` | Landing page that links to all generated artifacts and opens automatically after generation |
 
 ### Large Codebases and Knowledge Bases
 
@@ -111,7 +112,7 @@ See the [Codex skills docs](https://developers.openai.com/codex/skills) for more
 
 ### Option 4: Any Other Agent
 
-The skill is just a markdown file (`skill/SKILL.md`) that tells an AI agent how to analyze a project and generate the three artifacts. If your agent can:
+The skill is just a markdown file (`skill/SKILL.md`) that tells an AI agent how to analyze a project and generate the artifact set. If your agent can:
 
 1. Read files in a project directory
 2. Follow markdown instructions
@@ -184,6 +185,13 @@ See [mcp/README.md](mcp/README.md) for Claude Code, Codex, and Cursor setup.
 
 ```
   ┌──────────────────────┐
+  │ Artifact Launcher    │
+  │ cognitive-coverage   │
+  │      -open.html      │
+  └──────────┬───────────┘
+             │ links
+             ▼
+  ┌──────────────────────┐
   │   Teaching Guide     │──── quiz answers ────┐
   │  learning-guide.html │                      │
   └──────────┬───────────┘                      │
@@ -201,13 +209,14 @@ See [mcp/README.md](mcp/README.md) for Claude Code, Codex, and Cursor setup.
   └──────────────────────┘
 ```
 
-1. **Dashboard** loads the manifest and renders coverage status
-2. **Gap report** shows uncovered items with "Launch Teaching" buttons
-3. Clicking a button opens the **teaching guide** at the relevant section
-4. Answering quiz questions correctly writes results to **localStorage**
-5. Returning to the dashboard **syncs** quiz results and upgrades coverage
-6. You can also **manually** set status via buttons on each card
-7. **Export** the updated manifest as JSON anytime
+1. **Artifact Launcher** opens automatically after generation and links to every output
+2. **Dashboard** loads the manifest and renders coverage status
+3. **Gap report** shows uncovered items with "Launch Teaching" buttons
+4. Clicking a button opens the **teaching guide** at the relevant section
+5. Answering quiz questions correctly writes results to **localStorage**
+6. Returning to the dashboard **syncs** quiz results and upgrades coverage
+7. You can also **manually** set status via buttons on each card
+8. **Export** the updated manifest as JSON anytime
 
 See [docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md) for the full deep dive.
 

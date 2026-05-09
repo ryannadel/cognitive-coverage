@@ -23,9 +23,9 @@ The skill instructions in `skill/SKILL.md` are plain markdown — no platform-sp
 | OpenAI Codex | Copy to `.agents/skills/cognitive-coverage/SKILL.md` (project) or `~/.agents/skills/cognitive-coverage/SKILL.md` (personal) |
 | Other agents | Copy into whatever instruction mechanism your agent supports |
 
-## The Three Artifacts
+## The Artifacts
 
-Cognitive Coverage produces three coordinated artifacts:
+Cognitive Coverage produces coordinated artifacts:
 
 ### 1. Teaching Guide (`learning-guide.html`)
 
@@ -65,11 +65,21 @@ A visual status board that reads the manifest and shows:
 - **Flow timelines** — step-by-step diagrams for each traced flow
 - **Gap report** — all uncovered items with "Launch Teaching" buttons
 
+### 4. Artifact Launcher (`cognitive-coverage-open.html`)
+
+A lightweight landing page that links to the teaching guide, dashboard, and manifest. The coding agent opens this file automatically after generation so users can start from one obvious entry point.
+
 ## How the Pieces Connect
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    learning-guide.html                        │
+│              cognitive-coverage-open.html                     │
+│        Opens automatically and links to every artifact         │
+└────────────────────────────────────┬──────────────────────────┘
+                                     │ links
+                                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    learning-guide.html                      │
 │  ┌─────────┐  ┌──────────┐  ┌──────────┐  ┌─────────────┐  │
 │  │ Sections │  │ Snippets │  │ Warnings │  │ Quiz + Sync │  │
 │  └─────────┘  └──────────┘  └──────────┘  └──────┬──────┘  │
@@ -103,12 +113,14 @@ A visual status board that reads the manifest and shows:
 ```
 
 **Data flow:**
-1. Dashboard loads manifest → renders coverage status
-2. User clicks "Learn" on a gap → opens teaching guide at the relevant section
-3. User answers quiz in the guide → correct answers write to localStorage
-4. User returns to dashboard → syncs quiz results → upgrades coverage status
-5. User can also manually mark items via status buttons on the dashboard
-6. Dashboard can export updated manifest as JSON
+1. Agent opens artifact launcher automatically after generation
+2. User opens dashboard or learning guide from the launcher
+3. Dashboard loads manifest → renders coverage status
+4. User clicks "Learn" on a gap → opens teaching guide at the relevant section
+5. User answers quiz in the guide → correct answers write to localStorage
+6. User returns to dashboard → syncs quiz results → upgrades coverage status
+7. User can also manually mark items via status buttons on the dashboard
+8. Dashboard can export updated manifest as JSON
 
 ## Large Corpus Mode
 
