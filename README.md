@@ -78,9 +78,23 @@ Then invoke with `/cognitive-coverage` or just ask Claude to "generate cognitive
 
 See the [Claude Code skills docs](https://code.claude.com/docs/en/skills) for more on skill placement and configuration.
 
-### Option 3: OpenAI Codex / ChatGPT
+### Option 3: OpenAI Codex
 
-Use `skill/SKILL.md` as the system prompt or custom instructions for your agent. The instructions are plain markdown — no platform-specific APIs or bindings.
+Codex has native skill support via the `.agents/skills/` directory:
+
+```bash
+# Project skill (this repo only)
+mkdir -p .agents/skills/cognitive-coverage
+cp skill/SKILL.md .agents/skills/cognitive-coverage/SKILL.md
+
+# Personal skill (all your projects)
+mkdir -p ~/.agents/skills/cognitive-coverage
+cp skill/SKILL.md ~/.agents/skills/cognitive-coverage/SKILL.md
+```
+
+Then invoke with ```-coverage``` or let Codex auto-detect it from the description. Works in Codex CLI, IDE extension, and Codex app.
+
+See the [Codex skills docs](https://developers.openai.com/codex/skills) for more on skill placement and configuration.
 
 ### Option 4: Any Other Agent
 
@@ -100,7 +114,7 @@ If you prefer not to clone, just copy `skill/SKILL.md` to the appropriate locati
 |-------|----------|
 | GitHub Copilot | `~/.copilot/skills/cognitive-coverage/SKILL.md` |
 | Claude Code | `.claude/skills/cognitive-coverage/SKILL.md` (project) or `~/.claude/skills/cognitive-coverage/SKILL.md` (personal) |
-| OpenAI Codex | System prompt / custom instructions |
+| OpenAI Codex | `.agents/skills/cognitive-coverage/SKILL.md` (project) or `~/.agents/skills/cognitive-coverage/SKILL.md` (personal) |
 | Other | Wherever your agent reads instruction files |
 
 ## How It Works

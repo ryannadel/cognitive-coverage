@@ -20,7 +20,7 @@ The skill instructions in `skill/SKILL.md` are plain markdown — no platform-sp
 |-------|---------------|
 | GitHub Copilot | Run `install.sh` / `install.ps1` to copy to `~/.copilot/skills/` |
 | Claude Code | Copy to `.claude/skills/cognitive-coverage/SKILL.md` (project) or `~/.claude/skills/cognitive-coverage/SKILL.md` (personal) |
-| OpenAI Codex | Use as system prompt or custom instructions |
+| OpenAI Codex | Copy to `.agents/skills/cognitive-coverage/SKILL.md` (project) or `~/.agents/skills/cognitive-coverage/SKILL.md` (personal) |
 | Other agents | Copy into whatever instruction mechanism your agent supports |
 
 ## The Three Artifacts
@@ -140,6 +140,20 @@ cp skill/SKILL.md ~/.claude/skills/cognitive-coverage/SKILL.md
 ```
 
 Then invoke with `/cognitive-coverage` or let Claude auto-detect it.
+
+### OpenAI Codex
+
+```bash
+# Project skill (this repo only)
+mkdir -p .agents/skills/cognitive-coverage
+cp skill/SKILL.md .agents/skills/cognitive-coverage/SKILL.md
+
+# Personal skill (all your projects)
+mkdir -p ~/.agents/skills/cognitive-coverage
+cp skill/SKILL.md ~/.agents/skills/cognitive-coverage/SKILL.md
+```
+
+Then invoke with ```-coverage``` or let Codex auto-detect it.
 
 ### Other Agents
 
