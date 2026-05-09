@@ -15,6 +15,9 @@ from typing import Any, Iterable
 
 TOOL_NAMES = (
     "list_uncovered",
+    "list_areas",
+    "get_area",
+    "next_learning_targets",
     "get_concept",
     "get_flow",
     "coverage_summary",
@@ -23,6 +26,8 @@ TOOL_NAMES = (
 )
 
 AXES = ("files", "concepts", "flows")
+HIERARCHY_AXES = ("areas", "modules")
+TRACKED_COLLECTIONS = AXES + HIERARCHY_AXES
 MANIFEST_PATH = Path.cwd() / "cognitive-coverage.json"
 
 
@@ -90,6 +95,59 @@ def get_concept(concept_id: str) -> dict[str, Any]:
     }
 
 
+def list_areas() -> dict[str, Any]:
+    """Return large-corpus areas with module and coverage summaries."""
+    manifest = load_manifest()
+    modules = manifest.get("modules", [])
+    areas = []
+
+    for area in manifest.get("areas", []):
+        area_id = area.get("id")
+        area_modules = [
+            _item_summary(module, "modules")
+            for module in modules
+            if module.get("areaId") == area_id
+        ]
+        areas.append(
+            {
+                **_item_summary(area, "areas"),
+                "priority": area.get("priority"),
+                "moduleCount": len(area_modules),
+                "modules": area_modules,
+            }
+        )
+
+    return {
+        "count": len(areas),
+        "areas": areas,
+    }
+
+
+def get_area(area_id: str) -> dict[str, Any]:
+    """Return one large-corpus area and the manifest items it groups."""
+    manifest = load_manifest()
+    area = _find_item(manifest, "areas", area_id)
+    modules = [
+        deepcopy(module)
+        for module in manifest.get("modules", [])
+        if module.get("areaId") == area_id
+    ]
+    related = {
+        axis: [
+            deepcopy(item)
+            for item in manifest.get(axis, [])
+            if _item_in_area(item, area_id)
+        ]
+        for axis in AXES
+    }
+
+    return {
+        "area": deepcopy(area),
+        "modules": modules,
+        "related": related,
+    }
+
+
 def get_flow(flow_id: str) -> dict[str, Any]:
     """Return one flow with its steps and current status."""
     manifest = load_manifest()
@@ -99,6 +157,37 @@ def get_flow(flow_id: str) -> dict[str, Any]:
         "steps": flow.get("steps", []),
         "quizIds": flow.get("quizIds", []),
         "status": flow.get("status"),
+    }
+
+
+def next_learning_targets(limit: int = 5) -> dict[str, Any]:
+    """Return priority-ordered uncovered items that are good next learning targets."""
+    manifest = load_manifest()
+    candidates: list[dict[str, Any]] = []
+
+    for collection in ("areas", "modules", "concepts", "flows", "files"):
+        lowest = _lowest_status(manifest, collection)
+        for item in manifest.get(collection, []):
+            if item.get("status") != lowest:
+                continue
+            candidates.append(
+                {
+                    "collection": collection,
+                    "id": item.get("path") if collection == "files" else item.get("id"),
+                    "name": item.get("name"),
+                    "description": item.get("description"),
+                    "status": item.get("status"),
+                    "priority": item.get("priority", _inherited_priority(manifest, item)),
+                    "guideSection": item.get("guideSection"),
+                    "score": _learning_priority_score(manifest, item, collection),
+                }
+            )
+
+    candidates.sort(key=lambda item: (-item["score"], item["collection"], item.get("id") or ""))
+    limit = max(1, limit)
+    return {
+        "limit": limit,
+        "targets": candidates[:limit],
     }
 
 
@@ -142,6 +231,16 @@ def find_by_file(file_path: str) -> dict[str, Any]:
         for quiz_id, mapping in manifest.get("quizMapping", {}).items()
         if normalized in {_normalize_path(path) for path in mapping.get("files", [])}
     ]
+    source_summary = next(
+        (
+            deepcopy(summary)
+            for summary in manifest.get("sourceSummaries", [])
+            if _normalize_path(summary.get("path", "")) == normalized
+        ),
+        None,
+    )
+    area_ids = {item.get("areaId") for item in files + concepts + flows if item.get("areaId")}
+    module_ids = {item.get("moduleId") for item in files + concepts + flows if item.get("moduleId")}
 
     return {
         "filePath": file_path,
@@ -149,14 +248,25 @@ def find_by_file(file_path: str) -> dict[str, Any]:
         "concepts": concepts,
         "flows": flows,
         "quizIds": quiz_ids,
+        "areas": [
+            deepcopy(area)
+            for area in manifest.get("areas", [])
+            if area.get("id") in area_ids
+        ],
+        "modules": [
+            deepcopy(module)
+            for module in manifest.get("modules", [])
+            if module.get("id") in module_ids
+        ],
+        "sourceSummary": source_summary,
     }
 
 
 def mark_status(axis: str, item_id: str, status: str) -> dict[str, Any]:
     """Update one manifest item status and rewrite the manifest atomically."""
     manifest = load_manifest()
-    axis = _require_axis(axis)
-    allowed_statuses = manifest.get("statusLabels", {}).get(axis, [])
+    axis = _require_collection(axis)
+    allowed_statuses = _status_labels_for(manifest, axis)
 
     if allowed_statuses and status not in allowed_statuses:
         raise ValueError(f"Status '{status}' is not valid for {axis}: {', '.join(allowed_statuses)}")
@@ -186,6 +296,21 @@ def build_mcp_server() -> Any:
     def list_uncovered_tool(axis: str = "all") -> dict[str, Any]:
         """List files, concepts, or flows still at their first coverage status."""
         return list_uncovered(axis)
+
+    @mcp.tool(name="list_areas")
+    def list_areas_tool() -> dict[str, Any]:
+        """List large-corpus areas and their modules."""
+        return list_areas()
+
+    @mcp.tool(name="get_area")
+    def get_area_tool(area_id: str) -> dict[str, Any]:
+        """Get a large-corpus area by id, including modules and related manifest items."""
+        return get_area(area_id)
+
+    @mcp.tool(name="next_learning_targets")
+    def next_learning_targets_tool(limit: int = 5) -> dict[str, Any]:
+        """Suggest priority-ordered uncovered items to learn next."""
+        return next_learning_targets(limit)
 
     @mcp.tool(name="get_concept")
     def get_concept_tool(concept_id: str) -> dict[str, Any]:
@@ -240,26 +365,45 @@ def _require_axis(axis: str) -> str:
     return axis
 
 
-def _lowest_status(manifest: dict[str, Any], axis: str) -> str:
-    statuses = manifest.get("statusLabels", {}).get(axis, [])
-    return statuses[0] if statuses else "uncovered"
+def _require_collection(collection: str) -> str:
+    if collection not in TRACKED_COLLECTIONS:
+        raise ValueError(f"Collection must be one of: {', '.join(TRACKED_COLLECTIONS)}")
+    return collection
 
 
-def _find_item(manifest: dict[str, Any], axis: str, item_id: str) -> dict[str, Any]:
-    _require_axis(axis)
-    key = "path" if axis == "files" else "id"
-    normalized_id = _normalize_path(item_id) if axis == "files" else item_id
+def _status_labels_for(manifest: dict[str, Any], collection: str) -> list[str]:
+    labels = manifest.get("statusLabels", {}).get(collection, [])
+    if isinstance(labels, list):
+        return labels
+    return []
 
-    for item in manifest.get(axis, []):
-        value = _normalize_path(item.get(key, "")) if axis == "files" else item.get(key)
+
+def _lowest_status(manifest: dict[str, Any], collection: str) -> str:
+    statuses = _status_labels_for(manifest, collection)
+    if statuses:
+        return statuses[0]
+    if collection == "areas":
+        return "unmapped"
+    if collection == "modules":
+        return "planned"
+    return "uncovered"
+
+
+def _find_item(manifest: dict[str, Any], collection: str, item_id: str) -> dict[str, Any]:
+    _require_collection(collection)
+    key = "path" if collection == "files" else "id"
+    normalized_id = _normalize_path(item_id) if collection == "files" else item_id
+
+    for item in manifest.get(collection, []):
+        value = _normalize_path(item.get(key, "")) if collection == "files" else item.get(key)
         if value == normalized_id:
             return item
 
-    raise ValueError(f"No {axis[:-1]} found for '{item_id}'")
+    raise ValueError(f"No {_singular(collection)} found for '{item_id}'")
 
 
-def _item_summary(item: dict[str, Any], axis: str) -> dict[str, Any]:
-    key = "path" if axis == "files" else "id"
+def _item_summary(item: dict[str, Any], collection: str) -> dict[str, Any]:
+    key = "path" if collection == "files" else "id"
     return {
         key: item.get(key),
         "name": item.get("name"),
@@ -267,6 +411,60 @@ def _item_summary(item: dict[str, Any], axis: str) -> dict[str, Any]:
         "status": item.get("status"),
         "guideSection": item.get("guideSection"),
     }
+
+
+def _item_in_area(item: dict[str, Any], area_id: str) -> bool:
+    return item.get("areaId") == area_id or area_id in item.get("areaIds", [])
+
+
+def _inherited_priority(manifest: dict[str, Any], item: dict[str, Any]) -> str | None:
+    area_id = item.get("areaId")
+    if not area_id:
+        return None
+    for area in manifest.get("areas", []):
+        if area.get("id") == area_id:
+            return area.get("priority")
+    return None
+
+
+def _learning_priority_score(manifest: dict[str, Any], item: dict[str, Any], collection: str) -> int:
+    priority = item.get("priority", _inherited_priority(manifest, item))
+    if isinstance(priority, int):
+        priority_score = priority
+    else:
+        priority_score = {"critical": 40, "high": 30, "medium": 20, "low": 10}.get(str(priority), 0)
+
+    dependency_count = len(item.get("dependsOn", []))
+    guide_bonus = 5 if item.get("guideSection") else 0
+    collection_bonus = {"areas": 5, "modules": 4, "flows": 3, "concepts": 2, "files": 1}.get(collection, 0)
+    related_count = 0
+
+    if collection == "areas":
+        area_id = item.get("id")
+        related_count = sum(
+            1
+            for axis in AXES
+            for related_item in manifest.get(axis, [])
+            if _item_in_area(related_item, area_id)
+        )
+    elif collection == "modules":
+        module_id = item.get("id")
+        related_count = sum(
+            1
+            for axis in AXES
+            for related_item in manifest.get(axis, [])
+            if related_item.get("moduleId") == module_id
+        )
+
+    return priority_score + dependency_count + guide_bonus + collection_bonus + related_count
+
+
+def _singular(collection: str) -> str:
+    if collection == "areas":
+        return "area"
+    if collection == "files":
+        return "file"
+    return collection[:-1]
 
 
 def _normalize_path(path: str) -> str:

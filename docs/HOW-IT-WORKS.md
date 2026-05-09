@@ -52,6 +52,7 @@ The manifest also contains:
 - **Domain type** (codebase, research, documentation, knowledge) — determines terminology
 - **Quiz mapping** — links each quiz question to the concepts, flows, and files it tests
 - **Summary statistics** — pre-computed coverage percentages
+- **Optional hierarchy** — areas, modules, dependencies, priorities, and source summaries for large corpora
 
 ### 3. Coverage Dashboard (`cognitive-coverage.html`)
 
@@ -109,11 +110,46 @@ A visual status board that reads the manifest and shows:
 5. User can also manually mark items via status buttons on the dashboard
 6. Dashboard can export updated manifest as JSON
 
+## Large Corpus Mode
+
+Small projects can be taught in one pass. Large codebases, documentation portals, research collections, and hybrid knowledge bases need a staged workflow because "read everything and produce one guide" becomes unreliable and shallow.
+
+Large Corpus Mode adds a hierarchy above the existing files/concepts/flows axes:
+
+| Layer | Purpose |
+|-------|---------|
+| **Areas** | Major packages, services, bounded contexts, documentation sections, research themes, or knowledge domains |
+| **Modules** | Focused teaching units inside an area, often emitted as `learning-guides/<module-id>.html` |
+| **Dependencies** | Learning order and invalidation relationships between areas, modules, concepts, flows, and files |
+| **Source summaries** | Persistent per-source notes that support incremental refreshes |
+
+The recommended workflow is:
+
+1. **Index** the corpus and cluster it into areas
+2. **Prioritize** entry points, critical flows, security/data boundaries, highly referenced sources, and frequently changed areas
+3. **Generate an overview** in `learning-guide.html`
+4. **Generate focused modules** for the highest-priority areas
+5. **Expose gaps** in `cognitive-coverage.html` so uncovered areas are visible instead of implied complete
+6. **Refresh incrementally** when source hashes or modification times show that a learned area changed
+
+Large Corpus Mode supports these run modes:
+
+| Mode | Purpose |
+|------|---------|
+| `index` | Inventory, cluster, and prioritize only |
+| `overview` | Generate the top-level guide, manifest, and dashboard |
+| `area:<id>` | Generate or refresh one focused area/module |
+| `refresh` | Re-read changed sources and update affected summaries |
+| `quiz-only` | Improve comprehension checks without regenerating all teaching content |
+
+The key quality rule is honesty: a first pass can be valuable without claiming complete understanding. High-priority areas should be taught; lower-priority or unvisited areas should remain explicit gaps.
+
 ### MCP Layer
 
 The optional MCP server exposes the manifest to agents over stdio. It reads `./cognitive-coverage.json` by default, or a path passed with `--manifest`.
 
 The server does not regenerate the guide, dashboard, or manifest. It only reads manifest data and lets an agent update one item status with `mark_status`, rewriting the JSON file atomically.
+When a manifest includes large-corpus hierarchy, the server can also list areas, fetch one area with its grouped items, and recommend the next uncovered learning targets.
 
 ## Domain Adaptation
 

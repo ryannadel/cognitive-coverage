@@ -28,6 +28,19 @@ Cognitive Coverage closes that gap.
 | **Coverage Manifest** | `cognitive-coverage.json` | Machine-readable inventory tracking understanding across 3 axes |
 | **Coverage Dashboard** | `cognitive-coverage.html` | Visual status board with gap analysis and teaching guide links |
 
+### Large Codebases and Knowledge Bases
+
+For large projects, Cognitive Coverage switches from a single exhaustive pass to **Large Corpus Mode**:
+
+1. Inventory the full corpus first
+2. Cluster sources into areas and focused learning modules
+3. Prioritize critical flows, entry points, security/data boundaries, and highly referenced material
+4. Generate `learning-guide.html` as the overview map
+5. Generate optional `learning-guides/<module-id>.html` pages for deeper modules
+6. Keep uncovered areas visible as explicit dashboard gaps
+
+This keeps the first run honest and useful: high-priority understanding is taught immediately, while lower-priority areas remain tracked instead of being hidden inside an oversized guide.
+
 ### Three Coverage Axes
 
 | Axis | Codebase | Research | Documentation |
@@ -126,11 +139,14 @@ uv --directory /path/to/cognitive-coverage/mcp run python server.py \
   --manifest /path/to/your/project/cognitive-coverage.json
 ```
 
-The server provides six tools:
+The server provides hierarchy-aware tools:
 
 | Tool | Purpose |
 |------|---------|
 | `list_uncovered` | List files, concepts, or flows still at their first status |
+| `list_areas` | List large-corpus areas and their modules |
+| `get_area` | Return one area with modules and grouped files/concepts/flows |
+| `next_learning_targets` | Suggest priority-ordered uncovered items to learn next |
 | `get_concept` | Return a concept's description, files, quiz IDs, and status |
 | `get_flow` | Return a flow's steps, file references, quiz IDs, and status |
 | `coverage_summary` | Return the manifest summary and one-line synopsis |

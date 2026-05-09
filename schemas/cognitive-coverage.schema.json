@@ -34,6 +34,22 @@
       },
       "description": "Three progression levels per axis: [uncovered, partial, complete]"
     },
+    "largeCorpus": {
+      "type": "object",
+      "description": "Optional metadata for index-first coverage of large codebases or knowledge bases.",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "reason": { "type": ["string", "null"] },
+        "runMode": {
+          "type": "string",
+          "description": "Current generation mode, such as index, overview, area:<id>, refresh, or quiz-only."
+        },
+        "sourceCount": { "type": "integer", "minimum": 0 },
+        "estimatedTokens": { "type": "integer", "minimum": 0 },
+        "generatedModules": { "type": "array", "items": { "type": "string" } },
+        "pendingModules": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "summary": {
       "type": "object",
       "required": ["files", "concepts", "flows", "overall"],
@@ -55,6 +71,10 @@
           "description": { "type": "string" },
           "relatedConcepts": { "type": "array", "items": { "type": "string" } },
           "complexity": { "type": "string", "enum": ["core", "supporting", "config"] },
+          "areaId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "moduleId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "priority": { "$ref": "#/$defs/priority" },
+          "sourceHash": { "type": "string" },
           "guideSection": { "type": "string" },
           "updatedAt": { "type": ["string", "null"] }
         }
@@ -72,6 +92,10 @@
           "status": { "type": "string" },
           "files": { "type": "array", "items": { "type": "string" } },
           "quizIds": { "type": "array", "items": { "type": "string" } },
+          "areaId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "moduleId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "priority": { "$ref": "#/$defs/priority" },
+          "dependsOn": { "type": "array", "items": { "type": "string" } },
           "guideSection": { "type": "string" },
           "updatedAt": { "type": ["string", "null"] }
         }
@@ -99,7 +123,90 @@
             }
           },
           "quizIds": { "type": "array", "items": { "type": "string" } },
+          "areaId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "moduleId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "priority": { "$ref": "#/$defs/priority" },
+          "dependsOn": { "type": "array", "items": { "type": "string" } },
           "guideSection": { "type": "string" },
+          "updatedAt": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "areas": {
+      "type": "array",
+      "description": "Optional high-level grouping layer for large codebases, knowledge bases, or corpora.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "description", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" },
+          "priority": { "$ref": "#/$defs/priority" },
+          "rationale": { "type": "string" },
+          "guideSection": { "type": "string" },
+          "moduleIds": { "type": "array", "items": { "type": "string" } },
+          "dependsOn": { "type": "array", "items": { "type": "string" } },
+          "updatedAt": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "description": "Optional focused teaching modules generated under an area.",
+      "items": {
+        "type": "object",
+        "required": ["id", "areaId", "name", "description", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "areaId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" },
+          "priority": { "$ref": "#/$defs/priority" },
+          "guideFile": { "type": "string" },
+          "guideSection": { "type": "string" },
+          "filePaths": { "type": "array", "items": { "type": "string" } },
+          "conceptIds": { "type": "array", "items": { "type": "string" } },
+          "flowIds": { "type": "array", "items": { "type": "string" } },
+          "dependsOn": { "type": "array", "items": { "type": "string" } },
+          "updatedAt": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "Optional cross-item dependencies used for learning order and invalidation.",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "type"],
+        "properties": {
+          "from": { "$ref": "#/$defs/dependencyRef" },
+          "to": { "$ref": "#/$defs/dependencyRef" },
+          "type": {
+            "type": "string",
+            "enum": ["requires", "explains", "invalidates", "contains", "references"]
+          },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "sourceSummaries": {
+      "type": "array",
+      "description": "Optional persistent summaries that allow incremental refreshes without rereading unchanged sources.",
+      "items": {
+        "type": "object",
+        "required": ["path", "summary"],
+        "properties": {
+          "path": { "type": "string" },
+          "summary": { "type": "string" },
+          "whyItMatters": { "type": "string" },
+          "publicSurface": { "type": "array", "items": { "type": "string" } },
+          "dependencies": { "type": "array", "items": { "type": "string" } },
+          "areaId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "moduleId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "sourceHash": { "type": "string" },
           "updatedAt": { "type": ["string", "null"] }
         }
       }
@@ -118,6 +225,23 @@
     }
   },
   "$defs": {
+    "priority": {
+      "oneOf": [
+        { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+        { "type": "integer", "minimum": 0 }
+      ]
+    },
+    "dependencyRef": {
+      "type": "object",
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["area", "module", "file", "concept", "flow", "quiz"]
+        },
+        "id": { "type": "string" }
+      }
+    },
     "axisSummary": {
       "type": "object",
       "required": ["total", "covered", "percentage"],

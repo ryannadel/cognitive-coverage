@@ -9,11 +9,14 @@ The skill still works without MCP. Install this server only when you want an age
 | Tool | Purpose |
 |------|---------|
 | `list_uncovered` | List files, concepts, or flows still at their first status |
+| `list_areas` | List large-corpus areas and their modules |
+| `get_area` | Return one area with modules and grouped files/concepts/flows |
+| `next_learning_targets` | Suggest priority-ordered uncovered items to learn next |
 | `get_concept` | Return a concept's description, files, quiz IDs, and status |
 | `get_flow` | Return a flow's steps, file references, quiz IDs, and status |
 | `coverage_summary` | Return the manifest summary and one-line synopsis |
 | `find_by_file` | Return concepts and flows that reference a file path |
-| `mark_status` | Update one item status and rewrite the manifest atomically |
+| `mark_status` | Update one file, concept, flow, area, or module status and rewrite the manifest atomically |
 
 ## Run Locally
 

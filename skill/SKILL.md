@@ -128,6 +128,55 @@ Before writing anything, you MUST thoroughly read and understand the project:
 
 ---
 
+## Phase 1.5: Large Corpus Mode
+
+Use **Large Corpus Mode** when a project is too large for a reliable single-pass guide. This applies to large codebases, monorepos, documentation portals, research collections, and mixed knowledge bases.
+
+### When to switch modes
+
+Before deep reading, estimate corpus size from the file tree:
+
+- Total significant source count
+- Directory/package/service boundaries
+- Approximate line or token volume
+- Number of domains, apps, packages, doc sections, papers, or workflows
+- Whether one generated HTML guide would become too broad to teach well
+
+Switch to Large Corpus Mode when the corpus appears too large to read and teach deeply in one context window, or when it naturally contains multiple bounded areas. State that you are using Large Corpus Mode and explain why.
+
+### Large Corpus Workflow
+
+1. **Index first** — inventory all significant sources, classify the domain, and cluster the project into high-level areas.
+2. **Rank areas** — prioritize entry points, critical flows, security/data boundaries, high fan-in/fan-out modules, frequently changed sources, canonical docs, or highly referenced papers.
+3. **Create modules** — break each area into focused teaching units that can be generated independently.
+4. **Generate overview** — make `learning-guide.html` the top-level map, learning path, and cross-area quiz.
+5. **Generate focused guides** — when needed, write area modules as `learning-guides/<module-id>.html` with their own snippets, mental models, quiz, and localStorage sync.
+6. **Track explicit gaps** — mark uncovered areas/modules as gaps instead of pretending the first pass covered everything.
+
+### Run Modes
+
+If the user asks for a partial or incremental run, use one of these modes:
+
+| Mode | Purpose |
+|------|---------|
+| `index` | Inventory, cluster, and prioritize only; do not generate full teaching modules |
+| `overview` | Generate the top-level guide, manifest, and dashboard |
+| `area:<id>` | Generate or refresh one focused area/module |
+| `refresh` | Re-read changed sources and update affected summaries, modules, concepts, and flows |
+| `quiz-only` | Improve comprehension checks without regenerating all teaching content |
+
+### Large Corpus Quality Standard
+
+For large projects, "complete" means the first run is honest and navigable, not that every file is deeply taught. Verify that:
+
+- Every significant source is inventoried or intentionally excluded
+- Every high-level area has a description, priority, and gap status
+- Critical flows are traced across area boundaries where possible
+- Generated guides cover the highest-priority areas first
+- Uncovered areas/modules are visible in the manifest and dashboard
+
+---
+
 ## Phase 2: Concept Extraction
 
 From your analysis, identify:
@@ -385,7 +434,18 @@ Generate a JSON manifest that inventories the project into trackable units.
   "statusLabels": {
     "files": ["uncovered", "read", "understood"],
     "concepts": ["uncovered", "taught", "quiz-verified"],
-    "flows": ["uncovered", "traced", "verified"]
+    "flows": ["uncovered", "traced", "verified"],
+    "areas": ["unmapped", "mapped", "understood"],
+    "modules": ["planned", "generated", "verified"]
+  },
+  "largeCorpus": {
+    "enabled": false,
+    "reason": null,
+    "runMode": "overview",
+    "sourceCount": 0,
+    "estimatedTokens": 0,
+    "generatedModules": [],
+    "pendingModules": []
   },
   "summary": {
     "files": { "total": 0, "covered": 0, "percentage": 0 },
@@ -420,6 +480,42 @@ Generate a JSON manifest that inventories the project into trackable units.
     "steps": [{ "description": "Step desc", "file": "source-path" }],
     "quizIds": ["q4"],
     "guideSection": "section-anchor-id",
+    "updatedAt": null
+  }],
+  "areas": [{
+    "id": "area-id",
+    "name": "Area Name",
+    "description": "Major package, service, doc section, paper cluster, or knowledge theme",
+    "status": "unmapped",
+    "priority": "critical|high|medium|low",
+    "rationale": "Why this area matters in the learning path",
+    "guideSection": "section-anchor-id",
+    "moduleIds": ["module-id"],
+    "dependsOn": [],
+    "updatedAt": null
+  }],
+  "modules": [{
+    "id": "module-id",
+    "areaId": "area-id",
+    "name": "Focused Module Name",
+    "description": "A teachable unit inside an area",
+    "status": "planned",
+    "priority": "critical|high|medium|low",
+    "guideFile": "learning-guides/module-id.html",
+    "guideSection": "section-anchor-id",
+    "filePaths": ["source-path"],
+    "conceptIds": ["concept-id"],
+    "flowIds": ["flow-id"],
+    "dependsOn": [],
+    "updatedAt": null
+  }],
+  "sourceSummaries": [{
+    "path": "relative/source-path",
+    "summary": "Persistent source synopsis for incremental refresh",
+    "whyItMatters": "Why this source affects understanding",
+    "areaId": "area-id",
+    "moduleId": "module-id",
+    "sourceHash": "optional-hash-or-revision",
     "updatedAt": null
   }],
   "quizMapping": {
@@ -461,12 +557,20 @@ Generate a self-contained HTML dashboard.
 10. **localStorage sync** — reads/writes to `cognitive-coverage-state`
 11. **Domain-adaptive labels** — reads `labels` and `statusLabels` from manifest
 
+For Large Corpus Mode, add:
+
+12. **Area overview** — cards for each area with priority, status, and module count
+13. **Module drill-down** — links from area cards to focused guide files and sections
+14. **Dependency-aware gaps** — show which uncovered areas block the most downstream understanding
+15. **Next learning targets** — recommend the highest-priority uncovered areas, modules, concepts, or flows
+
 ### Bidirectional Integration
 - Dashboard "Learn" buttons → `learning-guide.html#section-id`
 - Teaching guide quiz answers → localStorage → dashboard reads on load
 - Shared localStorage key: `cognitive-coverage-state`
 
 The dashboard MUST read `labels` and `statusLabels` from the manifest to display domain-appropriate terminology.
+When `areas` or `modules` are present, the dashboard MUST render them as the top-level navigation layer before files/concepts/flows.
 
 ---
 
@@ -509,6 +613,8 @@ The HTML files will typically be 20-50KB. Due to shell/tool limitations with lar
    - `learning-guide.html`
    - `cognitive-coverage.json`
    - `cognitive-coverage.html`
+4. In Large Corpus Mode, also create focused modules under:
+   - `learning-guides/<module-id>.html`
 
 ---
 
@@ -532,6 +638,7 @@ Before delivering, verify:
 - [ ] Every quiz question mapped in quizMapping
 - [ ] guideSection anchors match the teaching guide
 - [ ] `domain`, `labels`, `statusLabels` fields present
+- [ ] Large Corpus Mode manifests include `areas`, `modules`, priorities, and source summaries when the corpus is too large for one pass
 
 ### Coverage Dashboard
 - [ ] Donut chart renders correctly
