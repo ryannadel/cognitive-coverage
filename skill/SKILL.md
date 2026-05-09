@@ -30,12 +30,12 @@ You generate a **cognitive coverage system** — coordinated artifacts that help
 
 | # | Artifact | File | Purpose |
 |---|----------|------|---------|
-| 1 | Teaching Guide | `learning-guide.html` | Interactive HTML with sections, code/content snippets, mental models, quiz |
-| 2 | Coverage Manifest | `cognitive-coverage.json` | Machine-readable inventory of what needs to be understood |
-| 3 | Coverage Dashboard | `cognitive-coverage.html` | Visual status board with gap analysis and teaching guide links |
-| 4 | Artifact Launcher | `cognitive-coverage-open.html` | Lightweight landing page that links to every generated artifact |
+| 1 | Teaching Guide | `cognitive-coverage/learning-guide.html` | Interactive HTML with sections, code/content snippets, mental models, quiz |
+| 2 | Coverage Manifest | `cognitive-coverage/cognitive-coverage.json` | Machine-readable inventory of what needs to be understood |
+| 3 | Coverage Dashboard | `cognitive-coverage/cognitive-coverage.html` | Visual status board with gap analysis and teaching guide links |
+| 4 | Artifact Launcher | `cognitive-coverage/cognitive-coverage-open.html` | Lightweight landing page that links to every generated artifact |
 
-Generate them in order: Guide → Manifest → Dashboard → Artifact Launcher. After verification, automatically open `cognitive-coverage-open.html` in the user's default browser.
+Generate them in order: Guide → Manifest → Dashboard → Artifact Launcher. Save them in `cognitive-coverage/` by default unless the user specifies a different output directory. After verification, automatically open `cognitive-coverage/cognitive-coverage-open.html` in the user's default browser.
 
 ---
 
@@ -150,7 +150,7 @@ Switch to Large Corpus Mode when the corpus appears too large to read and teach 
 1. **Index first** — inventory all significant sources, classify the domain, and cluster the project into high-level areas.
 2. **Rank areas** — prioritize entry points, critical flows, security/data boundaries, high fan-in/fan-out modules, frequently changed sources, canonical docs, or highly referenced papers.
 3. **Create modules** — break each area into focused teaching units that can be generated independently.
-4. **Generate overview** — make `learning-guide.html` the top-level map, learning path, and cross-area quiz.
+4. **Generate overview** — make `cognitive-coverage/learning-guide.html` the top-level map, learning path, and cross-area quiz by default.
 5. **Generate focused guides** — when needed, write area modules as `learning-guides/<module-id>.html` with their own snippets, mental models, quiz, and localStorage sync.
 6. **Track explicit gaps** — mark uncovered areas/modules as gaps instead of pretending the first pass covered everything.
 
@@ -194,7 +194,7 @@ From your analysis, identify:
 ---
 ## Phase 3: Teaching Guide Generation
 
-Generate a single self-contained HTML file (`learning-guide.html`) with no external dependencies.
+Generate a single self-contained HTML file (`cognitive-coverage/learning-guide.html` by default) with no external dependencies.
 
 ### Required Sections
 
@@ -414,7 +414,7 @@ Apply as `<span>` elements inside `<pre>` blocks. Do NOT use a syntax highlighti
 
 ---
 
-## Phase 4: Coverage Manifest (`cognitive-coverage.json`)
+## Phase 4: Coverage Manifest (`cognitive-coverage/cognitive-coverage.json`)
 
 Generate a JSON manifest that inventories the project into trackable units.
 
@@ -541,7 +541,7 @@ Do not assume MCP is available unless the host exposes those tools.
 
 ---
 
-## Phase 5: Coverage Dashboard (`cognitive-coverage.html`)
+## Phase 5: Coverage Dashboard (`cognitive-coverage/cognitive-coverage.html`)
 
 Generate a self-contained HTML dashboard.
 
@@ -575,7 +575,7 @@ When `areas` or `modules` are present, the dashboard MUST render them as the top
 
 ---
 
-## Phase 6: Artifact Launcher (`cognitive-coverage-open.html`)
+## Phase 6: Artifact Launcher (`cognitive-coverage/cognitive-coverage-open.html`)
 
 Generate a small self-contained HTML landing page that makes every output easy to open after generation.
 
@@ -588,17 +588,17 @@ Generate a small self-contained HTML landing page that makes every output easy t
 6. Use relative links only, so the artifact set remains portable if the user moves the folder.
 
 ### Automatic Open
-After writing and verifying all artifacts, attempt to open `cognitive-coverage-open.html` automatically using the host OS default browser:
+After writing and verifying all artifacts, attempt to open `cognitive-coverage/cognitive-coverage-open.html` automatically using the host OS default browser:
 
 ```bash
 # macOS
-open cognitive-coverage-open.html
+open cognitive-coverage/cognitive-coverage-open.html
 
 # Windows PowerShell
-Start-Process .\cognitive-coverage-open.html
+Start-Process .\cognitive-coverage\cognitive-coverage-open.html
 
 # Linux / WSL
-xdg-open cognitive-coverage-open.html
+xdg-open cognitive-coverage/cognitive-coverage-open.html
 ```
 
 Use the command appropriate for the current environment. If automatic opening fails because the environment is headless, remote, or lacks a browser, do not treat that as generation failure. Instead, clearly tell the user which file to open manually and include the absolute or relative path.
@@ -640,14 +640,14 @@ The HTML files will typically be 20-50KB. Due to shell/tool limitations with lar
 
 1. **Write in parts** — Break each HTML file into 3-6 chunks using file append operations.
 2. **Verify** each file after writing: check file size, first lines, last lines.
-3. Save all artifacts in the project root (or user-specified directory):
+3. Save all artifacts in `cognitive-coverage/` by default, or in the user-specified output directory:
    - `learning-guide.html`
    - `cognitive-coverage.json`
    - `cognitive-coverage.html`
    - `cognitive-coverage-open.html`
 4. In Large Corpus Mode, also create focused modules under:
    - `learning-guides/<module-id>.html`
-5. **Open the launcher** — Once verification passes, open `cognitive-coverage-open.html` automatically using the current OS default-browser command.
+5. **Open the launcher** — Once verification passes, open `cognitive-coverage/cognitive-coverage-open.html` (or the equivalent launcher path in the user-specified output directory) automatically using the current OS default-browser command.
 
 ---
 

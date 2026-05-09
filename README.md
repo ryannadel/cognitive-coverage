@@ -24,10 +24,12 @@ Cognitive Coverage closes that gap.
 
 | Artifact | File | Purpose |
 |----------|------|---------|
-| **Teaching Guide** | `learning-guide.html` | Interactive HTML with sections, source snippets, mental models, and quiz |
-| **Coverage Manifest** | `cognitive-coverage.json` | Machine-readable inventory tracking understanding across 3 axes |
-| **Coverage Dashboard** | `cognitive-coverage.html` | Visual status board with gap analysis and teaching guide links |
-| **Artifact Launcher** | `cognitive-coverage-open.html` | Landing page that links to all generated artifacts and opens automatically after generation |
+| **Teaching Guide** | `cognitive-coverage/learning-guide.html` | Interactive HTML with sections, source snippets, mental models, and quiz |
+| **Coverage Manifest** | `cognitive-coverage/cognitive-coverage.json` | Machine-readable inventory tracking understanding across 3 axes |
+| **Coverage Dashboard** | `cognitive-coverage/cognitive-coverage.html` | Visual status board with gap analysis and teaching guide links |
+| **Artifact Launcher** | `cognitive-coverage/cognitive-coverage-open.html` | Landing page that links to all generated artifacts and opens automatically after generation |
+
+By default, all generated outputs are placed in a `cognitive-coverage/` folder in the target project. The launcher is the entry point for opening the artifact set.
 
 ### Large Codebases and Knowledge Bases
 
@@ -36,7 +38,7 @@ For large projects, Cognitive Coverage switches from a single exhaustive pass to
 1. Inventory the full corpus first
 2. Cluster sources into areas and focused learning modules
 3. Prioritize critical flows, entry points, security/data boundaries, and highly referenced material
-4. Generate `learning-guide.html` as the overview map
+4. Generate `cognitive-coverage/learning-guide.html` as the overview map
 5. Generate optional `learning-guides/<module-id>.html` pages for deeper modules
 6. Keep uncovered areas visible as explicit dashboard gaps
 
@@ -187,6 +189,7 @@ See [mcp/README.md](mcp/README.md) for Claude Code, Codex, and Cursor setup.
   ┌──────────────────────┐
   │ Artifact Launcher    │
   │ cognitive-coverage   │
+  │ /cognitive-coverage  │
   │      -open.html      │
   └──────────┬───────────┘
              │ links

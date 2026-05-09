@@ -27,7 +27,7 @@ The skill instructions in `skill/SKILL.md` are plain markdown — no platform-sp
 
 Cognitive Coverage produces coordinated artifacts:
 
-### 1. Teaching Guide (`learning-guide.html`)
+### 1. Teaching Guide (`cognitive-coverage/learning-guide.html`)
 
 A self-contained interactive HTML page that teaches the project from first principles:
 
@@ -38,7 +38,7 @@ A self-contained interactive HTML page that teaches the project from first princ
 - **Interactive quiz** — 10-20 questions that verify genuine comprehension
 - **Coverage sync** — quiz answers write to localStorage, feeding back to the dashboard
 
-### 2. Coverage Manifest (`cognitive-coverage.json`)
+### 2. Coverage Manifest (`cognitive-coverage/cognitive-coverage.json`)
 
 A machine-readable JSON file that inventories the project across three axes:
 
@@ -54,7 +54,7 @@ The manifest also contains:
 - **Summary statistics** — pre-computed coverage percentages
 - **Optional hierarchy** — areas, modules, dependencies, priorities, and source summaries for large corpora
 
-### 3. Coverage Dashboard (`cognitive-coverage.html`)
+### 3. Coverage Dashboard (`cognitive-coverage/cognitive-coverage.html`)
 
 A visual status board that reads the manifest and shows:
 
@@ -65,9 +65,9 @@ A visual status board that reads the manifest and shows:
 - **Flow timelines** — step-by-step diagrams for each traced flow
 - **Gap report** — all uncovered items with "Launch Teaching" buttons
 
-### 4. Artifact Launcher (`cognitive-coverage-open.html`)
+### 4. Artifact Launcher (`cognitive-coverage/cognitive-coverage-open.html`)
 
-A lightweight landing page that links to the teaching guide, dashboard, and manifest. The coding agent opens this file automatically after generation so users can start from one obvious entry point.
+A lightweight landing page that links to the teaching guide, dashboard, and manifest. The coding agent opens this file automatically after generation so users can start from one obvious entry point. By default, all generated outputs live together in the target project's `cognitive-coverage/` folder.
 
 ## How the Pieces Connect
 
@@ -139,9 +139,9 @@ The recommended workflow is:
 
 1. **Index** the corpus and cluster it into areas
 2. **Prioritize** entry points, critical flows, security/data boundaries, highly referenced sources, and frequently changed areas
-3. **Generate an overview** in `learning-guide.html`
+3. **Generate an overview** in `cognitive-coverage/learning-guide.html`
 4. **Generate focused modules** for the highest-priority areas
-5. **Expose gaps** in `cognitive-coverage.html` so uncovered areas are visible instead of implied complete
+5. **Expose gaps** in `cognitive-coverage/cognitive-coverage.html` so uncovered areas are visible instead of implied complete
 6. **Refresh incrementally** when source hashes or modification times show that a learned area changed
 
 Large Corpus Mode supports these run modes:
