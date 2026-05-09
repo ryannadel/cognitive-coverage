@@ -1,4 +1,4 @@
-﻿---
+---
 name: Bug Report
 about: Something isn't working as expected
 title: '[Bug] '
@@ -14,6 +14,12 @@ What happened?
 - [ ] Documentation
 - [ ] Knowledge (general)
 
+**Agent**
+- [ ] GitHub Copilot
+- [ ] Claude Code
+- [ ] OpenAI Codex
+- [ ] Other (please specify)
+
 **Steps to reproduce**
 1. ...
 2. ...
@@ -26,7 +32,7 @@ What actually happened?
 
 **Environment**
 - OS:
-- Copilot CLI version:
+- Agent / version:
 - Shell:
 
 **Additional context**

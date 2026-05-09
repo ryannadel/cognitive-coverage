@@ -1,8 +1,14 @@
-﻿# 🧠 Cognitive Coverage
+# 🧠 Cognitive Coverage
 
 **Like test coverage, but for understanding.**
 
-Cognitive Coverage is a [GitHub Copilot skill](https://docs.github.com/en/copilot) that generates a measurement and learning system for any project — codebases, research papers, documentation wikis, or general knowledge domains. It produces three coordinated artifacts that help you track, teach, and verify genuine system understanding.
+Cognitive Coverage is a skill for AI coding agents that generates a measurement and learning system for any project — codebases, research papers, documentation wikis, or general knowledge domains. It produces three coordinated artifacts that help you track, teach, and verify genuine system understanding.
+
+Works with any AI coding agent that supports custom instructions, including:
+- **GitHub Copilot** (as a Copilot skill)
+- **Claude Code** (as a custom command or CLAUDE.md instructions)
+- **OpenAI Codex** (as a system prompt)
+- **Any LLM-powered agent** with file access and markdown instruction support
 
 ## The Problem
 
@@ -34,48 +40,61 @@ Each axis has three status levels (e.g., `uncovered → read → understood`). S
 
 ## Quick Start
 
-### Install
+### Option 1: GitHub Copilot
 
 ```bash
 # Unix / macOS / WSL
-git clone https://github.com/YOUR_USERNAME/cognitive-coverage.git
+git clone https://github.com/ryannadel/cognitive-coverage.git
 cd cognitive-coverage
 bash install.sh
 
 # Windows PowerShell
-git clone https://github.com/YOUR_USERNAME/cognitive-coverage.git
+git clone https://github.com/ryannadel/cognitive-coverage.git
 cd cognitive-coverage
 .\install.ps1
 ```
 
 This copies the skill definition to `~/.copilot/skills/cognitive-coverage/SKILL.md`.
 
-### Use
-
-Open any project in your IDE with GitHub Copilot and say:
+Then open any project with Copilot and say:
 
 > "Generate cognitive coverage for this project"
 
-or
+### Option 2: Claude Code
 
-> "Create a learning guide for this codebase"
+Copy the skill instructions into a custom command:
 
-or
+```bash
+mkdir -p .claude/commands
+cp skill/SKILL.md .claude/commands/cognitive-coverage.md
+```
 
-> "Help me understand this research collection"
+Then run `/cognitive-coverage` in Claude Code. Alternatively, add the contents of `skill/SKILL.md` to your project's `CLAUDE.md` or `~/.claude/CLAUDE.md` for always-on access.
 
-The skill will:
-1. Deep-read your entire project
-2. Extract concepts, flows, and key abstractions
-3. Generate all three artifacts in the project root
+### Option 3: OpenAI Codex / ChatGPT
+
+Use `skill/SKILL.md` as the system prompt or custom instructions for your agent. The instructions are plain markdown — no platform-specific APIs or bindings.
+
+### Option 4: Any Other Agent
+
+The skill is just a markdown file (`skill/SKILL.md`) that tells an AI agent how to analyze a project and generate the three artifacts. If your agent can:
+
+1. Read files in a project directory
+2. Follow markdown instructions
+3. Write output files
+
+...then it can run Cognitive Coverage. Copy `skill/SKILL.md` into whatever instruction mechanism your agent supports.
 
 ### Manual Install
 
-If you prefer not to clone, just copy `skill/SKILL.md` to:
+If you prefer not to clone, just copy `skill/SKILL.md` to the appropriate location for your agent:
 
-```
-~/.copilot/skills/cognitive-coverage/SKILL.md
-```
+| Agent | Location |
+|-------|----------|
+| GitHub Copilot | `~/.copilot/skills/cognitive-coverage/SKILL.md` |
+| Claude Code | `.claude/commands/cognitive-coverage.md` or `CLAUDE.md` |
+| OpenAI Codex | System prompt / custom instructions |
+| Other | Wherever your agent reads instruction files |
 
 ## How It Works
 
@@ -142,10 +161,10 @@ cognitive-coverage/
 ├── README.md                          # This file
 ├── LICENSE                            # MIT
 ├── CONTRIBUTING.md                    # How to contribute
-├── install.sh                         # Unix/macOS/WSL installer
-├── install.ps1                        # Windows installer
+├── install.sh                         # Copilot installer (Unix/macOS/WSL)
+├── install.ps1                        # Copilot installer (Windows)
 ├── skill/
-│   └── SKILL.md                       # The Copilot skill definition
+│   └── SKILL.md                       # The skill instructions (works with any agent)
 ├── schemas/
 │   └── cognitive-coverage.schema.json # JSON Schema for manifests
 ├── examples/
@@ -170,6 +189,7 @@ Ideas for contributions:
 - Improved quiz question patterns
 - Dashboard visualization improvements
 - Additional example manifests
+- Install scripts for other agents
 - Integrations with other tools
 
 ## License

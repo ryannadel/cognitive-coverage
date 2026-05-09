@@ -1,4 +1,4 @@
-﻿# Contributing to Cognitive Coverage
+# Contributing to Cognitive Coverage
 
 Thanks for your interest in improving cognitive coverage! Here's how to get involved.
 
@@ -19,18 +19,24 @@ The skill definition lives in `skill/SKILL.md`. Improvements might include:
 - Better CSS theme or layout patterns
 - More effective mental model templates
 
-### 3. Report Issues
+### 3. Add Agent Install Scripts
+The install scripts currently support GitHub Copilot. Contributions for other agents are welcome:
+- Claude Code setup scripts
+- OpenAI Codex integration helpers
+- Other agent platforms
+
+### 4. Report Issues
 Found a bug or have a feature idea? Open an issue using the templates in `.github/ISSUE_TEMPLATE/`.
 
-### 4. Improve Documentation
+### 5. Improve Documentation
 The `docs/` directory has detailed documentation. PRs for clarity, examples, or new guides are welcome.
 
 ## Development Setup
 
 1. Fork and clone the repo
-2. Run the installer to test: `bash install.sh`
+2. Copy `skill/SKILL.md` to your agent of choice (see README for platform-specific instructions)
 3. Make your changes
-4. Test with a real project by running the cognitive-coverage skill
+4. Test with a real project by running the cognitive coverage skill
 5. Open a PR
 
 ## Pull Request Guidelines

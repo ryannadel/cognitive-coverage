@@ -1,4 +1,4 @@
-﻿# How Cognitive Coverage Works
+# How Cognitive Coverage Works
 
 ## The Problem: Cognitive Debt
 
@@ -11,6 +11,17 @@ This gap has always existed (inherited codebases, staff turnover, undocumented s
 > When a developer writes code from scratch, even messy code, the friction and effort mean they build at least a partial mental model along the way. When an AI generates that same code, the developer may accept it without building the same level of understanding. At scale, across a team, and over time, this creates an accumulation of not knowing across the team. The code works, but the understanding and mental models of how the system behaves and how to reason about it are missing or flawed.
 
 Cognitive Coverage is a system for measuring and closing that gap.
+
+## Agent Compatibility
+
+The skill instructions in `skill/SKILL.md` are plain markdown — no platform-specific APIs or tool bindings. Any AI coding agent that can read files, follow instructions, and write output can use them.
+
+| Agent | How to install |
+|-------|---------------|
+| GitHub Copilot | Run `install.sh` / `install.ps1` to copy to `~/.copilot/skills/` |
+| Claude Code | Copy to `.claude/commands/cognitive-coverage.md` or add to `CLAUDE.md` |
+| OpenAI Codex | Use as system prompt or custom instructions |
+| Other agents | Copy into whatever instruction mechanism your agent supports |
 
 ## The Three Artifacts
 
@@ -106,7 +117,7 @@ Status labels also adapt (e.g., "uncovered/read/understood" for code vs "unread/
 
 ## Installation
 
-Copy the skill to your Copilot skills directory:
+### GitHub Copilot
 
 ```bash
 # Unix/macOS/WSL
@@ -116,7 +127,20 @@ bash install.sh
 .\install.ps1
 ```
 
-Then ask Copilot to "generate cognitive coverage" for any project.
+### Claude Code
+
+```bash
+# As a slash command
+mkdir -p .claude/commands
+cp skill/SKILL.md .claude/commands/cognitive-coverage.md
+
+# Or add to project instructions
+cat skill/SKILL.md >> CLAUDE.md
+```
+
+### Other Agents
+
+Copy `skill/SKILL.md` into your agent's instruction mechanism and ask it to generate cognitive coverage for your project.
 
 ## JSON Schema
 
