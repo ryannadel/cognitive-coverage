@@ -1,0 +1,11 @@
+[mcp_servers.cognitive-coverage]
+command = "uv"
+args = [
+  "--directory",
+  "/path/to/cognitive-coverage/mcp",
+  "run",
+  "python",
+  "server.py",
+  "--manifest",
+  "/path/to/your/project/cognitive-coverage.json",
+]

@@ -117,6 +117,53 @@ If you prefer not to clone, just copy `skill/SKILL.md` to the appropriate locati
 | OpenAI Codex | `.agents/skills/cognitive-coverage/SKILL.md` (project) or `~/.agents/skills/cognitive-coverage/SKILL.md` (personal) |
 | Other | Wherever your agent reads instruction files |
 
+## MCP Integration (optional)
+
+Cognitive Coverage also ships an optional MCP stdio server for agents that can call tools during a session. The skill still works without MCP; the server only exposes an existing `cognitive-coverage.json` manifest.
+
+```bash
+uv --directory /path/to/cognitive-coverage/mcp run python server.py \
+  --manifest /path/to/your/project/cognitive-coverage.json
+```
+
+The server provides six tools:
+
+| Tool | Purpose |
+|------|---------|
+| `list_uncovered` | List files, concepts, or flows still at their first status |
+| `get_concept` | Return a concept's description, files, quiz IDs, and status |
+| `get_flow` | Return a flow's steps, file references, quiz IDs, and status |
+| `coverage_summary` | Return the manifest summary and one-line synopsis |
+| `find_by_file` | Return concepts and flows that reference a file path |
+| `mark_status` | Update one item status and rewrite the manifest atomically |
+
+Example host config:
+
+```json
+{
+  "mcpServers": {
+    "cognitive-coverage": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/path/to/cognitive-coverage/mcp",
+        "run",
+        "python",
+        "server.py",
+        "--manifest",
+        "/path/to/your/project/cognitive-coverage.json"
+      ]
+    }
+  }
+}
+```
+
+Once installed, ask your agent:
+
+> "Use `coverage_summary`, then `list_uncovered` for concepts."
+
+See [mcp/README.md](mcp/README.md) for Claude Code, Codex, and Cursor setup.
+
 ## How It Works
 
 ```
@@ -186,12 +233,18 @@ cognitive-coverage/
 ├── install.ps1                        # Copilot installer (Windows)
 ├── skill/
 │   └── SKILL.md                       # The skill instructions (works with any agent)
+├── mcp/
+│   ├── server.py                      # Optional MCP stdio server
+│   ├── test_server.py                 # MCP smoke tests
+│   └── pyproject.toml                 # MCP server dependencies
 ├── schemas/
 │   └── cognitive-coverage.schema.json # JSON Schema for manifests
 ├── examples/
 │   ├── codebase/                      # TypeScript REST API example
 │   ├── research/                      # ML paper review example
-│   └── documentation/                 # Platform wiki example
+│   ├── documentation/                 # Platform wiki example
+│   ├── mcp-config-claude-code.json    # Claude Code MCP config snippet
+│   └── mcp-config-codex.json          # Codex MCP config snippet
 ├── docs/
 │   └── HOW-IT-WORKS.md               # Detailed system documentation
 └── .github/
