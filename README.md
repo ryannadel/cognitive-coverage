@@ -62,14 +62,21 @@ Then open any project with Copilot and say:
 
 ### Option 2: Claude Code
 
-Copy the skill instructions into a custom command:
+Claude Code has native skill support. Install as a project or personal skill:
 
 ```bash
-mkdir -p .claude/commands
-cp skill/SKILL.md .claude/commands/cognitive-coverage.md
+# Project skill (this project only)
+mkdir -p .claude/skills/cognitive-coverage
+cp skill/SKILL.md .claude/skills/cognitive-coverage/SKILL.md
+
+# Personal skill (all your projects)
+mkdir -p ~/.claude/skills/cognitive-coverage
+cp skill/SKILL.md ~/.claude/skills/cognitive-coverage/SKILL.md
 ```
 
-Then run `/cognitive-coverage` in Claude Code. Alternatively, add the contents of `skill/SKILL.md` to your project's `CLAUDE.md` or `~/.claude/CLAUDE.md` for always-on access.
+Then invoke with `/cognitive-coverage` or just ask Claude to "generate cognitive coverage" — it will auto-detect the skill from the description.
+
+See the [Claude Code skills docs](https://code.claude.com/docs/en/skills) for more on skill placement and configuration.
 
 ### Option 3: OpenAI Codex / ChatGPT
 
@@ -92,7 +99,7 @@ If you prefer not to clone, just copy `skill/SKILL.md` to the appropriate locati
 | Agent | Location |
 |-------|----------|
 | GitHub Copilot | `~/.copilot/skills/cognitive-coverage/SKILL.md` |
-| Claude Code | `.claude/commands/cognitive-coverage.md` or `CLAUDE.md` |
+| Claude Code | `.claude/skills/cognitive-coverage/SKILL.md` (project) or `~/.claude/skills/cognitive-coverage/SKILL.md` (personal) |
 | OpenAI Codex | System prompt / custom instructions |
 | Other | Wherever your agent reads instruction files |
 
