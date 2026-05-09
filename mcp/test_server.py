@@ -70,4 +70,4 @@ def test_find_by_file_returns_inverse_lookup(tmp_path):
     assert result["file"]["path"] == "src/middleware/auth.ts"
     assert {concept["id"] for concept in result["concepts"]} == {"auth"}
     assert {flow["id"] for flow in result["flows"]} == {"auth-flow", "crud-flow"}
-    assert result["quizIds"] == ["q2", "q3"]
+    assert result["quizIds"] == ["q2", "q3", "q5"]
