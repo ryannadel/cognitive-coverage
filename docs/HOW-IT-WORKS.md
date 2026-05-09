@@ -92,6 +92,13 @@ A visual status board that reads the manifest and shows:
                      │
               cognitive-coverage.json
               (source of truth manifest)
+                     ▲
+                     │ reads / writes
+┌────────────────────┼─────────────────────────────────────────┐
+│              optional MCP stdio server                         │
+│  list_uncovered  get_concept  get_flow  coverage_summary       │
+│  find_by_file    mark_status                                   │
+└───────────────────────────────────────────────────────────────┘
 ```
 
 **Data flow:**
@@ -101,6 +108,12 @@ A visual status board that reads the manifest and shows:
 4. User returns to dashboard → syncs quiz results → upgrades coverage status
 5. User can also manually mark items via status buttons on the dashboard
 6. Dashboard can export updated manifest as JSON
+
+### MCP Layer
+
+The optional MCP server exposes the manifest to agents over stdio. It reads `./cognitive-coverage.json` by default, or a path passed with `--manifest`.
+
+The server does not regenerate the guide, dashboard, or manifest. It only reads manifest data and lets an agent update one item status with `mark_status`, rewriting the JSON file atomically.
 
 ## Domain Adaptation
 

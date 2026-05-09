@@ -406,6 +406,11 @@ Generate a JSON manifest that inventories the project into trackable units.
 6. All statuses start at the first level (uncovered/unread/unseen/unfamiliar/unknown)
 7. Include `domain`, `labels`, and `statusLabels` so the dashboard adapts vocabulary
 
+### Optional MCP Access
+If the host agent has the Cognitive Coverage MCP server installed, it can query and update this manifest mid-session via tools such as `coverage_summary`, `list_uncovered`, `find_by_file`, and `mark_status`.
+The skill itself does not require MCP.
+Do not assume MCP is available unless the host exposes those tools.
+
 ---
 
 ## Phase 5: Coverage Dashboard (`cognitive-coverage.html`)
