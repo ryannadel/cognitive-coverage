@@ -636,18 +636,24 @@ Always include this callout near the top of the guide:
 
 ## File Writing Strategy
 
-The HTML files will typically be 20-50KB. Due to shell/tool limitations with large strings:
+The HTML files will typically be 20-50KB and may be larger in Large Corpus Mode. Avoid shell quoting failures by using this order of preference:
 
-1. **Write in parts** — Break each HTML file into 3-6 chunks using file append operations.
-2. **Verify** each file after writing: check file size, first lines, last lines.
-3. Save all artifacts in `cognitive-coverage/` by default, or in the user-specified output directory:
+1. **Use native file-edit/write tools first** — If the host provides a file creation or patch tool, write the artifact with that tool instead of embedding a huge HTML string in a shell command.
+2. **If shell is the only option, use a non-interactive writer** — Write a short temporary script outside the target project or use a language runtime to decode safe chunks. Pass chunks as JSON strings or base64 data; do not rely on interactive heredocs, unescaped quotes, or giant one-line shell strings.
+3. **Keep chunks small and append deterministically** — Break each HTML file into chunks under roughly 8KB, write them in order, and fail loudly if any write command fails.
+4. **Never stop after analysis just because the first write method fails** — Switch to the next writing method and complete the required artifacts.
+5. **Clean up temporary writers** — Remove any temporary script after the artifacts are verified. Do not leave helper scripts in the target project unless the user explicitly asks for them.
+6. **Verify** each file after writing: check that it exists, has non-zero size, starts with `<!DOCTYPE html>` for HTML artifacts, and ends with `</html>`.
+7. Save all artifacts in `cognitive-coverage/` by default, or in the user-specified output directory:
    - `learning-guide.html`
    - `cognitive-coverage.json`
    - `cognitive-coverage.html`
    - `cognitive-coverage-open.html`
-4. In Large Corpus Mode, also create focused modules under:
+8. In Large Corpus Mode, also create focused modules under:
    - `learning-guides/<module-id>.html`
-5. **Open the launcher** — Once verification passes, open `cognitive-coverage/cognitive-coverage-open.html` (or the equivalent launcher path in the user-specified output directory) automatically using the current OS default-browser command.
+9. **Open the launcher** — Once verification passes, open `cognitive-coverage/cognitive-coverage-open.html` (or the equivalent launcher path in the user-specified output directory) automatically using the current OS default-browser command.
+
+If a write attempt stalls or fails, report the failed method only after trying a safer fallback. The expected successful outcome is always the completed artifact files, not just a completed analysis.
 
 ---
 
