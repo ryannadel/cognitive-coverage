@@ -1,4 +1,4 @@
-# 🧠 Cognitive Coverage
+# Cognitive Coverage
 
 **Like test coverage, but for understanding.**
 
