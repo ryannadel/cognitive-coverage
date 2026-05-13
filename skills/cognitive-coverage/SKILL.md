@@ -1,5 +1,6 @@
-﻿---
+---
 name: cognitive-coverage
+license: MIT
 description: >
   Generate a cognitive coverage system for any project: a JSON manifest tracking understanding
   across files, concepts, and data flows; an interactive HTML teaching guide with quiz; and an

@@ -16,7 +16,7 @@ mkdir -p "${SKILL_DIR}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Copy skill file
-cp "${SCRIPT_DIR}/skill/SKILL.md" "${SKILL_DIR}/SKILL.md"
+cp "${SCRIPT_DIR}/skills/cognitive-coverage/SKILL.md" "${SKILL_DIR}/SKILL.md"
 
 echo "✅ Installed to ${SKILL_DIR}/SKILL.md"
 echo ""

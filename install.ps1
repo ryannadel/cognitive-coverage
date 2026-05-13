@@ -15,7 +15,7 @@ if (-not (Test-Path $SkillDir)) {
 
 # Copy skill file
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Copy-Item (Join-Path $ScriptDir "skill\SKILL.md") (Join-Path $SkillDir "SKILL.md") -Force
+Copy-Item (Join-Path $ScriptDir "skills\cognitive-coverage\SKILL.md") (Join-Path $SkillDir "SKILL.md") -Force
 
 Write-Host "✅ Installed to $SkillDir\SKILL.md" -ForegroundColor Green
 Write-Host ""

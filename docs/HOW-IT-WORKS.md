@@ -14,14 +14,14 @@ Cognitive Coverage is a system for measuring and closing that gap.
 
 ## Agent Compatibility
 
-The skill instructions in `skill/SKILL.md` are plain markdown — no platform-specific APIs or tool bindings. Any AI coding agent that can read files, follow instructions, and write output can use them.
+The skill instructions in `skills/cognitive-coverage/SKILL.md` are plain markdown — no platform-specific APIs or tool bindings. Any AI coding agent that can read files, follow instructions, and write output can use them.
 
 | Agent | How to install |
 |-------|---------------|
-| GitHub Copilot | Run `install.sh` / `install.ps1` to copy to `~/.copilot/skills/` |
-| Claude Code | Copy to `.claude/skills/cognitive-coverage/SKILL.md` (project) or `~/.claude/skills/cognitive-coverage/SKILL.md` (personal) |
-| OpenAI Codex | Copy to `.agents/skills/cognitive-coverage/SKILL.md` (project) or `~/.agents/skills/cognitive-coverage/SKILL.md` (personal) |
-| Other agents | Copy into whatever instruction mechanism your agent supports |
+| GitHub Copilot | `gh skill install ryannadel/cognitive-coverage cognitive-coverage --agent github-copilot --scope user` |
+| Claude Code | `npx skills add ryannadel/cognitive-coverage --skill cognitive-coverage -g -a claude-code` |
+| OpenAI Codex | `npx skills add ryannadel/cognitive-coverage --skill cognitive-coverage -g -a codex` |
+| Other agents | Use `skills/cognitive-coverage/SKILL.md` as the source skill file |
 
 ## The Artifacts
 
@@ -193,47 +193,31 @@ Status labels also adapt (e.g., "uncovered/read/understood" for code vs "unread/
 
 ## Installation
 
-### GitHub Copilot
+### Standard Skill Installers
 
 ```bash
-# Unix/macOS/WSL
-bash install.sh
+# Install with npx skills
+npx skills add ryannadel/cognitive-coverage --skill cognitive-coverage -g -a codex
 
-# Windows PowerShell
-.\install.ps1
+# Install with GitHub CLI
+gh skill install ryannadel/cognitive-coverage cognitive-coverage --agent codex --scope user
 ```
 
-### Claude Code
+Use `--agent github-copilot`, `--agent claude-code`, or `--agent codex` with `gh skill install` to choose a host. With `npx skills`, change the `-a` value to the agent you want. Use `--scope project` or omit `-g` for project-level installs.
+
+### Updates
 
 ```bash
-# Project skill (this project only)
-mkdir -p .claude/skills/cognitive-coverage
-cp skill/SKILL.md .claude/skills/cognitive-coverage/SKILL.md
+# If installed with npx skills
+npx skills update cognitive-coverage -g -y
 
-# Personal skill (all your projects)
-mkdir -p ~/.claude/skills/cognitive-coverage
-cp skill/SKILL.md ~/.claude/skills/cognitive-coverage/SKILL.md
+# If installed with gh skill
+gh skill update cognitive-coverage
 ```
 
-Then invoke with `/cognitive-coverage` or let Claude auto-detect it.
+If you installed with `npx skills` into project scope, omit `-g` when updating.
 
-### OpenAI Codex
-
-```bash
-# Project skill (this repo only)
-mkdir -p .agents/skills/cognitive-coverage
-cp skill/SKILL.md .agents/skills/cognitive-coverage/SKILL.md
-
-# Personal skill (all your projects)
-mkdir -p ~/.agents/skills/cognitive-coverage
-cp skill/SKILL.md ~/.agents/skills/cognitive-coverage/SKILL.md
-```
-
-Then invoke with ```-coverage``` or let Codex auto-detect it.
-
-### Other Agents
-
-Copy `skill/SKILL.md` into your agent's instruction mechanism and ask it to generate cognitive coverage for your project.
+Then ask your agent to generate cognitive coverage for your project.
 
 ## JSON Schema
 
