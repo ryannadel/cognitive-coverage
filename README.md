@@ -60,82 +60,53 @@ Each axis has three status levels (e.g., `uncovered → read → understood`). S
 
 ## Quick Start
 
-### Option 1: GitHub Copilot
+### Install with `npx skills`
 
 ```bash
-# Unix / macOS / WSL
-git clone https://github.com/ryannadel/cognitive-coverage.git
-cd cognitive-coverage
-bash install.sh
+# OpenAI Codex
+npx skills add ryannadel/cognitive-coverage --skill cognitive-coverage -g -a codex
 
-# Windows PowerShell
-git clone https://github.com/ryannadel/cognitive-coverage.git
-cd cognitive-coverage
-.\install.ps1
+# GitHub Copilot
+npx skills add ryannadel/cognitive-coverage --skill cognitive-coverage -g -a github-copilot
+
+# Claude Code
+npx skills add ryannadel/cognitive-coverage --skill cognitive-coverage -g -a claude-code
 ```
 
-This copies the skill definition to `~/.copilot/skills/cognitive-coverage/SKILL.md`.
+Use `-g` for a user-level install, or omit it to install into the current project. Add `-y` to skip confirmation prompts.
 
-Then open any project with Copilot and say:
+### Install with `gh skill`
+
+```bash
+# OpenAI Codex
+gh skill install ryannadel/cognitive-coverage cognitive-coverage --agent codex --scope user
+
+# GitHub Copilot
+gh skill install ryannadel/cognitive-coverage cognitive-coverage --agent github-copilot --scope user
+
+# Claude Code
+gh skill install ryannadel/cognitive-coverage cognitive-coverage --agent claude-code --scope user
+```
+
+Use `--scope user` for a user-level install, or `--scope project` to install into the current project.
+
+Then open any project with your agent and say:
 
 > "Generate cognitive coverage for this project"
 
-### Option 2: Claude Code
-
-Claude Code has native skill support. Install as a project or personal skill:
+### Update the Skill
 
 ```bash
-# Project skill (this project only)
-mkdir -p .claude/skills/cognitive-coverage
-cp skill/SKILL.md .claude/skills/cognitive-coverage/SKILL.md
+# If installed with npx skills
+npx skills update cognitive-coverage -g -y
 
-# Personal skill (all your projects)
-mkdir -p ~/.claude/skills/cognitive-coverage
-cp skill/SKILL.md ~/.claude/skills/cognitive-coverage/SKILL.md
+# If installed with gh skill
+gh skill update cognitive-coverage
 ```
 
-Then invoke with `/cognitive-coverage` or just ask Claude to "generate cognitive coverage" — it will auto-detect the skill from the description.
+If you installed with `npx skills` into project scope, omit `-g` when updating.
 
-See the [Claude Code skills docs](https://code.claude.com/docs/en/skills) for more on skill placement and configuration.
-
-### Option 3: OpenAI Codex
-
-Codex has native skill support via the `.agents/skills/` directory:
-
-```bash
-# Project skill (this repo only)
-mkdir -p .agents/skills/cognitive-coverage
-cp skill/SKILL.md .agents/skills/cognitive-coverage/SKILL.md
-
-# Personal skill (all your projects)
-mkdir -p ~/.agents/skills/cognitive-coverage
-cp skill/SKILL.md ~/.agents/skills/cognitive-coverage/SKILL.md
-```
-
-Then invoke with ```-coverage``` or let Codex auto-detect it from the description. Works in Codex CLI, IDE extension, and Codex app.
-
-See the [Codex skills docs](https://developers.openai.com/codex/skills) for more on skill placement and configuration.
-
-### Option 4: Any Other Agent
-
-The skill is just a markdown file (`skill/SKILL.md`) that tells an AI agent how to analyze a project and generate the artifact set. If your agent can:
-
-1. Read files in a project directory
-2. Follow markdown instructions
-3. Write output files
-
-...then it can run Cognitive Coverage. Copy `skill/SKILL.md` into whatever instruction mechanism your agent supports.
-
-### Manual Install
-
-If you prefer not to clone, just copy `skill/SKILL.md` to the appropriate location for your agent:
-
-| Agent | Location |
-|-------|----------|
-| GitHub Copilot | `~/.copilot/skills/cognitive-coverage/SKILL.md` |
-| Claude Code | `.claude/skills/cognitive-coverage/SKILL.md` (project) or `~/.claude/skills/cognitive-coverage/SKILL.md` (personal) |
-| OpenAI Codex | `.agents/skills/cognitive-coverage/SKILL.md` (project) or `~/.agents/skills/cognitive-coverage/SKILL.md` (personal) |
-| Other | Wherever your agent reads instruction files |
+For unsupported agents, use `skills/cognitive-coverage/SKILL.md` as the source skill file.
 
 ## MCP Integration (optional)
 
@@ -261,10 +232,11 @@ cognitive-coverage/
 ├── README.md                          # This file
 ├── LICENSE                            # MIT
 ├── CONTRIBUTING.md                    # How to contribute
-├── install.sh                         # Copilot installer (Unix/macOS/WSL)
-├── install.ps1                        # Copilot installer (Windows)
-├── skill/
-│   └── SKILL.md                       # The skill instructions (works with any agent)
+├── install.sh                         # Legacy Copilot installer (Unix/macOS/WSL)
+├── install.ps1                        # Legacy Copilot installer (Windows)
+├── skills/
+│   └── cognitive-coverage/
+│       └── SKILL.md                   # The installable skill instructions
 ├── mcp/
 │   ├── server.py                      # Optional MCP stdio server
 │   ├── test_server.py                 # MCP smoke tests
@@ -295,7 +267,7 @@ Ideas for contributions:
 - Improved quiz question patterns
 - Dashboard visualization improvements
 - Additional example manifests
-- Install scripts for other agents
+- Installer compatibility improvements
 - Integrations with other tools
 
 ## License

@@ -12,18 +12,18 @@ The `examples/` directory has sample manifests for different domains. To add one
 - Open a PR
 
 ### 2. Improve the Skill
-The skill definition lives in `skill/SKILL.md`. Improvements might include:
+The skill definition lives in `skills/cognitive-coverage/SKILL.md`. Improvements might include:
 - Better domain detection heuristics
 - Additional domain vocabularies
 - Improved quiz question patterns
 - Better CSS theme or layout patterns
 - More effective mental model templates
 
-### 3. Add Agent Install Scripts
-The install scripts currently support GitHub Copilot. Contributions for other agents are welcome:
-- Claude Code setup scripts
-- OpenAI Codex integration helpers
-- Other agent platforms
+### 3. Improve Installer Compatibility
+The repo is structured for standard skill installers. Contributions that improve `npx skills` or `gh skill` compatibility are welcome:
+- Clearer install/update documentation
+- Agent compatibility notes
+- Validation checks for the installable skill layout
 
 ### 4. Report Issues
 Found a bug or have a feature idea? Open an issue using the templates in `.github/ISSUE_TEMPLATE/`.
@@ -34,7 +34,7 @@ The `docs/` directory has detailed documentation. PRs for clarity, examples, or 
 ## Development Setup
 
 1. Fork and clone the repo
-2. Copy `skill/SKILL.md` to your agent of choice (see README for platform-specific instructions)
+2. Install the skill locally with `npx skills add . --skill cognitive-coverage` or `gh skill install . cognitive-coverage --from-local`
 3. Make your changes
 4. Test with a real project by running the cognitive coverage skill
 5. Open a PR
