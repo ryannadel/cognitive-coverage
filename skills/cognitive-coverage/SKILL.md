@@ -276,6 +276,26 @@ For non-code domains, use `<pre>` or `<blockquote>` with the source path label. 
 </nav>
 ```
 
+#### Anchor and Navigation Integrity
+
+The sidebar is a map of the actual guide, not a static template. Build it from the
+sections you really emit in the document.
+
+Rules:
+1. Every sidebar link target (`href="#section-id"`) MUST match an actual
+   `<section id="section-id">` in the same `learning-guide.html`.
+2. Every major visible teaching section MUST appear in the sidebar exactly once.
+   Do not include quiz cards, filter controls, banners, or internal sub-elements as
+   top-level navigation entries.
+3. If you rename, merge, split, or omit a section, update the sidebar label and
+   anchor at the same time. Never leave placeholder or stale entries such as
+   anchors copied from an earlier guide.
+4. Use one canonical kebab-case section ID for each section and reuse it anywhere
+   else that needs to link to that section, including manifest `guideSection`
+   values and dashboard "Learn" links.
+5. Before delivery, compare the set of sidebar anchors against the set of guide
+   section IDs. The sets must match for all major teaching sections.
+
 #### Learning Level Controls
 ```html
 <div class="level-controls" aria-label="Learning level controls">
@@ -633,7 +653,9 @@ Generate a JSON manifest that inventories the project into trackable units.
 2. Extract 8-15 concepts from the analysis
 3. Identify 3-7 end-to-end flows, argument chains, or processes
 4. Map every quiz question to concepts, flows, and files via `quizMapping`
-5. Use the same section anchor IDs as the teaching guide
+5. Use the same canonical section anchor IDs as the teaching guide; every
+   `guideSection` value MUST point to an actual major `<section id="...">` in
+   `learning-guide.html`
 6. All statuses start at the first level (uncovered/unread/unseen/unfamiliar/unknown)
 7. Include `domain`, `labels`, and `statusLabels` so the dashboard adapts vocabulary
 8. Include `learningLevels` and tag teachable items plus quiz mappings with `difficulty` and `depth`
@@ -676,6 +698,8 @@ For Large Corpus Mode, add:
 - Teaching guide quiz answers → localStorage → dashboard reads on load
 - Shared localStorage key: `cognitive-coverage-state`
 
+Dashboard "Learn" links MUST use only canonical section IDs that exist in the generated
+teaching guide. Do not render links to placeholder, omitted, or renamed sections.
 The dashboard MUST read `labels` and `statusLabels` from the manifest to display domain-appropriate terminology.
 The dashboard MUST read `learningLevels` when present, render difficulty/depth controls, and preserve existing behavior when the field is absent.
 When `areas` or `modules` are present, the dashboard MUST render them as the top-level navigation layer before files/concepts/flows.
@@ -829,6 +853,8 @@ Before delivering, verify:
 - [ ] Core flow / argument / algorithm traced end-to-end
 - [ ] At least 3 mental model callouts and 3 warning boxes
 - [ ] Snippets reference real source paths
+- [ ] Every sidebar `href="#..."` target matches an actual major `<section id="...">`
+- [ ] Every major visible teaching section appears in the sidebar exactly once
 - [ ] Quiz has 10+ questions spanning all sections
 - [ ] Quiz questions include difficulty/depth metadata and cover the intended learner path
 - [ ] Quiz includes localStorage sync to coverage state
@@ -841,7 +867,7 @@ Before delivering, verify:
 - [ ] 3+ flows traced with step-by-step breakdowns
 - [ ] Every quiz question mapped in quizMapping
 - [ ] `learningLevels` defines difficulty/depth defaults and quiz mappings include level tags
-- [ ] guideSection anchors match the teaching guide
+- [ ] Every `guideSection` anchor matches an actual major teaching guide section
 - [ ] `domain`, `labels`, `statusLabels` fields present
 - [ ] Large Corpus Mode manifests include `areas`, `modules`, priorities, and source summaries when the corpus is too large for one pass
 
@@ -850,6 +876,7 @@ Before delivering, verify:
 - [ ] Three axis bars display with domain-adapted labels
 - [ ] File/concept/flow cards render with status controls
 - [ ] Gap report lists uncovered items with "Learn" links
+- [ ] Every "Learn" link points to an actual canonical teaching guide section
 - [ ] Export produces valid JSON
 - [ ] localStorage sync reads quiz results on load
 - [ ] Status terminology matches the domain
