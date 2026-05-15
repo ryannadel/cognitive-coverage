@@ -24,7 +24,7 @@ Cognitive Coverage closes that gap.
 
 | Artifact | File | Purpose |
 |----------|------|---------|
-| **Teaching Guide** | `cognitive-coverage/learning-guide.html` | Interactive HTML with sections, source snippets, mental models, and quiz |
+| **Teaching Guide** | `cognitive-coverage/learning-guide.html` | Interactive HTML with sections, source snippets, mental models, level controls, and quiz |
 | **Coverage Manifest** | `cognitive-coverage/cognitive-coverage.json` | Machine-readable inventory tracking understanding across 3 axes |
 | **Coverage Dashboard** | `cognitive-coverage/cognitive-coverage.html` | Visual status board with gap analysis and teaching guide links |
 | **Artifact Launcher** | `cognitive-coverage/cognitive-coverage-open.html` | Landing page that links to all generated artifacts and opens automatically after generation |
@@ -57,6 +57,17 @@ This keeps the first run honest and useful: high-priority understanding is taugh
 | **Flows** | Data flows | Argument chains | Workflows & procedures |
 
 Each axis has three status levels (e.g., `uncovered → read → understood`). Status terminology adapts automatically to the domain.
+
+### Learning Levels
+
+Generated materials can adapt to a 3x3 learning model:
+
+| Axis | Levels | Controls |
+|------|--------|----------|
+| **Difficulty** | `beginner`, `intermediate`, `advanced` | Learner background and assumed context |
+| **Depth** | `overview`, `standard`, `deep-dive` | Amount of detail shown in the guide and quiz |
+
+The manifest stores optional level metadata on teachable items and quiz mappings. Guides use it for progressive disclosure, dashboards use it for gap filters and level badges, and MCP tools can return level-aware next learning targets.
 
 ## Quick Start
 
@@ -124,7 +135,7 @@ The server provides hierarchy-aware tools:
 | `list_uncovered` | List files, concepts, or flows still at their first status |
 | `list_areas` | List large-corpus areas and their modules |
 | `get_area` | Return one area with modules and grouped files/concepts/flows |
-| `next_learning_targets` | Suggest priority-ordered uncovered items to learn next |
+| `next_learning_targets` | Suggest priority-ordered uncovered items to learn next, optionally filtered by difficulty/depth |
 | `get_concept` | Return a concept's description, files, quiz IDs, and status |
 | `get_flow` | Return a flow's steps, file references, quiz IDs, and status |
 | `coverage_summary` | Return the manifest summary and one-line synopsis |

@@ -103,3 +103,37 @@ def test_hierarchy_tools_return_area_and_learning_targets(tmp_path):
     assert targets["targets"][0]["id"] in {"security", "auth-boundary", "auth-flow", "auth"}
     assert updated["axis"] == "areas"
     assert updated["status"] == "mapped"
+
+
+def test_learning_levels_are_returned_and_filter_targets(tmp_path):
+    server = load_server()
+    manifest_path = tmp_path / "cognitive-coverage.json"
+    manifest_path.write_text(
+        (ROOT / "examples" / "codebase" / "cognitive-coverage.json").read_text(encoding="utf-8-sig"),
+        encoding="utf-8",
+    )
+    server.configure_manifest(manifest_path)
+
+    summary = server.coverage_summary()
+    concept = server.get_concept("auth")
+    flow = server.get_flow("auth-flow")
+    file_lookup = server.find_by_file("src/middleware/auth.ts")
+    advanced_targets = server.next_learning_targets(limit=10, difficulty="advanced", depth="deep-dive")
+
+    assert summary["learningLevels"]["defaultDifficulty"] == "beginner"
+    assert summary["learningLevels"]["defaultDepth"] == "standard"
+    assert concept["difficulty"] == "advanced"
+    assert concept["depth"] == "deep-dive"
+    assert flow["difficulty"] == "advanced"
+    assert flow["depth"] == "deep-dive"
+    assert file_lookup["file"]["difficulty"] == "advanced"
+    assert file_lookup["file"]["depth"] == "deep-dive"
+    assert advanced_targets["difficulty"] == "advanced"
+    assert advanced_targets["depth"] == "deep-dive"
+    assert {target["id"] for target in advanced_targets["targets"]} == {
+        "security",
+        "auth-boundary",
+        "auth",
+        "auth-flow",
+        "src/middleware/auth.ts",
+    }

@@ -11,7 +11,7 @@ The skill still works without MCP. Install this server only when you want an age
 | `list_uncovered` | List files, concepts, or flows still at their first status |
 | `list_areas` | List large-corpus areas and their modules |
 | `get_area` | Return one area with modules and grouped files/concepts/flows |
-| `next_learning_targets` | Suggest priority-ordered uncovered items to learn next |
+| `next_learning_targets` | Suggest priority-ordered uncovered items to learn next, optionally filtered by difficulty/depth |
 | `get_concept` | Return a concept's description, files, quiz IDs, and status |
 | `get_flow` | Return a flow's steps, file references, quiz IDs, and status |
 | `coverage_summary` | Return the manifest summary and one-line synopsis |
@@ -26,6 +26,8 @@ uv run python server.py --manifest ../examples/codebase/cognitive-coverage.json
 ```
 
 If you do not pass `--manifest`, the server reads `./cognitive-coverage.json` from the current working directory.
+
+When a manifest includes `learningLevels`, tools surface `difficulty` and `depth` metadata on returned items. `next_learning_targets` also accepts optional `difficulty` and `depth` filters, so an agent can ask for targets such as beginner overview items or advanced deep-dive items.
 
 ## Claude Code
 

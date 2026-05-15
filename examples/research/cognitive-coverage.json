@@ -14,6 +14,20 @@
     "concepts": ["unfamiliar", "introduced", "quiz-verified"],
     "flows": ["unknown", "followed", "verified"]
   },
+  "learningLevels": {
+    "difficulty": [
+      { "id": "beginner", "label": "Beginner", "description": "Introduces transformer vocabulary and paper orientation" },
+      { "id": "intermediate", "label": "Intermediate", "description": "Explains mechanisms and comparisons across papers" },
+      { "id": "advanced", "label": "Advanced", "description": "Covers research tradeoffs, limitations, and scaling implications" }
+    ],
+    "depth": [
+      { "id": "overview", "label": "Overview", "description": "Summarizes the research landscape" },
+      { "id": "standard", "label": "Standard", "description": "Traces arguments and methods in enough detail for review work" },
+      { "id": "deep-dive", "label": "Deep-dive", "description": "Examines mechanisms, assumptions, and cross-paper consequences" }
+    ],
+    "defaultDifficulty": "beginner",
+    "defaultDepth": "standard"
+  },
   "summary": {
     "files": { "total": 4, "covered": 0, "percentage": 0 },
     "concepts": { "total": 3, "covered": 0, "percentage": 0 },
@@ -21,25 +35,25 @@
     "overall": 0
   },
   "files": [
-    { "path": "papers/vaswani2017-attention.pdf", "status": "unread", "description": "Attention Is All You Need — the original transformer paper", "relatedConcepts": ["self-attention", "architecture"], "complexity": "core", "guideSection": "attention", "updatedAt": null },
-    { "path": "papers/devlin2019-bert.pdf", "status": "unread", "description": "BERT: Pre-training of Deep Bidirectional Transformers", "relatedConcepts": ["pretraining", "architecture"], "complexity": "core", "guideSection": "pretraining", "updatedAt": null },
-    { "path": "papers/brown2020-gpt3.pdf", "status": "unread", "description": "Language Models are Few-Shot Learners (GPT-3)", "relatedConcepts": ["scaling", "pretraining"], "complexity": "core", "guideSection": "scaling", "updatedAt": null },
-    { "path": "notes/comparison-table.md", "status": "unread", "description": "Comparative analysis notes across papers", "relatedConcepts": ["architecture"], "complexity": "supporting", "guideSection": "architecture", "updatedAt": null }
+    { "path": "papers/vaswani2017-attention.pdf", "status": "unread", "description": "Attention Is All You Need — the original transformer paper", "relatedConcepts": ["self-attention", "architecture"], "complexity": "core", "difficulty": "beginner", "depth": "standard", "guideSection": "attention", "updatedAt": null },
+    { "path": "papers/devlin2019-bert.pdf", "status": "unread", "description": "BERT: Pre-training of Deep Bidirectional Transformers", "relatedConcepts": ["pretraining", "architecture"], "complexity": "core", "difficulty": "intermediate", "depth": "standard", "guideSection": "pretraining", "updatedAt": null },
+    { "path": "papers/brown2020-gpt3.pdf", "status": "unread", "description": "Language Models are Few-Shot Learners (GPT-3)", "relatedConcepts": ["scaling", "pretraining"], "complexity": "core", "difficulty": "advanced", "depth": "deep-dive", "guideSection": "scaling", "updatedAt": null },
+    { "path": "notes/comparison-table.md", "status": "unread", "description": "Comparative analysis notes across papers", "relatedConcepts": ["architecture"], "complexity": "supporting", "difficulty": "beginner", "depth": "overview", "guideSection": "architecture", "updatedAt": null }
   ],
   "concepts": [
-    { "id": "self-attention", "name": "Self-Attention Mechanism", "description": "Query-Key-Value computation allowing tokens to attend to all positions", "status": "unfamiliar", "files": ["papers/vaswani2017-attention.pdf"], "quizIds": ["q1", "q2"], "guideSection": "attention", "updatedAt": null },
-    { "id": "pretraining", "name": "Pre-training Objectives", "description": "Masked language modeling (BERT) vs autoregressive (GPT) training strategies", "status": "unfamiliar", "files": ["papers/devlin2019-bert.pdf", "papers/brown2020-gpt3.pdf"], "quizIds": ["q3", "q5"], "guideSection": "pretraining", "updatedAt": null },
-    { "id": "scaling", "name": "Scaling Laws", "description": "How model performance relates to parameter count, data size, and compute", "status": "unfamiliar", "files": ["papers/brown2020-gpt3.pdf"], "quizIds": ["q4", "q5"], "guideSection": "scaling", "updatedAt": null }
+    { "id": "self-attention", "name": "Self-Attention Mechanism", "description": "Query-Key-Value computation allowing tokens to attend to all positions", "status": "unfamiliar", "files": ["papers/vaswani2017-attention.pdf"], "quizIds": ["q1", "q2"], "difficulty": "beginner", "depth": "standard", "guideSection": "attention", "updatedAt": null },
+    { "id": "pretraining", "name": "Pre-training Objectives", "description": "Masked language modeling (BERT) vs autoregressive (GPT) training strategies", "status": "unfamiliar", "files": ["papers/devlin2019-bert.pdf", "papers/brown2020-gpt3.pdf"], "quizIds": ["q3", "q5"], "difficulty": "intermediate", "depth": "standard", "guideSection": "pretraining", "updatedAt": null },
+    { "id": "scaling", "name": "Scaling Laws", "description": "How model performance relates to parameter count, data size, and compute", "status": "unfamiliar", "files": ["papers/brown2020-gpt3.pdf"], "quizIds": ["q4", "q5"], "difficulty": "advanced", "depth": "deep-dive", "guideSection": "scaling", "updatedAt": null }
   ],
   "flows": [
-    { "id": "attention-computation", "name": "Attention Computation Flow", "description": "Input embeddings to multi-head attention output", "status": "unknown", "steps": [{"description": "Embed input tokens", "file": "papers/vaswani2017-attention.pdf"}, {"description": "Project to Q, K, V matrices", "file": "papers/vaswani2017-attention.pdf"}, {"description": "Compute scaled dot-product attention", "file": "papers/vaswani2017-attention.pdf"}, {"description": "Concatenate heads and project", "file": "papers/vaswani2017-attention.pdf"}], "quizIds": ["q1", "q2"], "guideSection": "attention", "updatedAt": null },
-    { "id": "pretraining-pipeline", "name": "Pre-training Pipeline", "description": "From raw text to trained language model", "status": "unknown", "steps": [{"description": "Tokenize corpus", "file": "papers/devlin2019-bert.pdf"}, {"description": "Apply masking/autoregressive objective", "file": "papers/devlin2019-bert.pdf"}, {"description": "Train on large-scale compute", "file": "papers/brown2020-gpt3.pdf"}, {"description": "Evaluate on downstream tasks", "file": "papers/brown2020-gpt3.pdf"}], "quizIds": ["q3", "q4", "q5"], "guideSection": "pretraining", "updatedAt": null }
+    { "id": "attention-computation", "name": "Attention Computation Flow", "description": "Input embeddings to multi-head attention output", "status": "unknown", "steps": [{"description": "Embed input tokens", "file": "papers/vaswani2017-attention.pdf"}, {"description": "Project to Q, K, V matrices", "file": "papers/vaswani2017-attention.pdf"}, {"description": "Compute scaled dot-product attention", "file": "papers/vaswani2017-attention.pdf"}, {"description": "Concatenate heads and project", "file": "papers/vaswani2017-attention.pdf"}], "quizIds": ["q1", "q2"], "difficulty": "beginner", "depth": "standard", "guideSection": "attention", "updatedAt": null },
+    { "id": "pretraining-pipeline", "name": "Pre-training Pipeline", "description": "From raw text to trained language model", "status": "unknown", "steps": [{"description": "Tokenize corpus", "file": "papers/devlin2019-bert.pdf"}, {"description": "Apply masking/autoregressive objective", "file": "papers/devlin2019-bert.pdf"}, {"description": "Train on large-scale compute", "file": "papers/brown2020-gpt3.pdf"}, {"description": "Evaluate on downstream tasks", "file": "papers/brown2020-gpt3.pdf"}], "quizIds": ["q3", "q4", "q5"], "difficulty": "intermediate", "depth": "standard", "guideSection": "pretraining", "updatedAt": null }
   ],
   "quizMapping": {
-    "q1": { "concepts": ["self-attention"], "flows": ["attention-computation"], "files": ["papers/vaswani2017-attention.pdf"] },
-    "q2": { "concepts": ["self-attention"], "flows": ["attention-computation"], "files": ["papers/vaswani2017-attention.pdf"] },
-    "q3": { "concepts": ["pretraining"], "flows": ["pretraining-pipeline"], "files": ["papers/devlin2019-bert.pdf"] },
-    "q4": { "concepts": ["scaling"], "flows": ["pretraining-pipeline"], "files": ["papers/brown2020-gpt3.pdf"] },
-    "q5": { "type": "application", "question": "If your literature review needed to argue how pretraining scale affects transfer, which papers would you cite first and what comparison would you watch for?", "concepts": ["pretraining", "scaling"], "flows": ["pretraining-pipeline"], "files": ["papers/devlin2019-bert.pdf", "papers/brown2020-gpt3.pdf", "notes/comparison-table.md"] }
+    "q1": { "concepts": ["self-attention"], "flows": ["attention-computation"], "files": ["papers/vaswani2017-attention.pdf"], "difficulty": "beginner", "depth": "overview", "questionType": "structure", "prerequisites": [] },
+    "q2": { "concepts": ["self-attention"], "flows": ["attention-computation"], "files": ["papers/vaswani2017-attention.pdf"], "difficulty": "beginner", "depth": "standard", "questionType": "logic", "prerequisites": ["self-attention"] },
+    "q3": { "concepts": ["pretraining"], "flows": ["pretraining-pipeline"], "files": ["papers/devlin2019-bert.pdf"], "difficulty": "intermediate", "depth": "standard", "questionType": "behavior", "prerequisites": ["self-attention"] },
+    "q4": { "concepts": ["scaling"], "flows": ["pretraining-pipeline"], "files": ["papers/brown2020-gpt3.pdf"], "difficulty": "advanced", "depth": "deep-dive", "questionType": "system-thinking", "prerequisites": ["pretraining"] },
+    "q5": { "type": "application", "question": "If your literature review needed to argue how pretraining scale affects transfer, which papers would you cite first and what comparison would you watch for?", "concepts": ["pretraining", "scaling"], "flows": ["pretraining-pipeline"], "files": ["papers/devlin2019-bert.pdf", "papers/brown2020-gpt3.pdf", "notes/comparison-table.md"], "difficulty": "advanced", "depth": "deep-dive", "questionType": "application", "prerequisites": ["pretraining", "scaling"] }
   }
 }

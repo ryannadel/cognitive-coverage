@@ -92,6 +92,8 @@ def get_concept(concept_id: str) -> dict[str, Any]:
         "relatedFiles": concept.get("files", []),
         "quizIds": concept.get("quizIds", []),
         "status": concept.get("status"),
+        "difficulty": concept.get("difficulty"),
+        "depth": concept.get("depth"),
     }
 
 
@@ -157,10 +159,16 @@ def get_flow(flow_id: str) -> dict[str, Any]:
         "steps": flow.get("steps", []),
         "quizIds": flow.get("quizIds", []),
         "status": flow.get("status"),
+        "difficulty": flow.get("difficulty"),
+        "depth": flow.get("depth"),
     }
 
 
-def next_learning_targets(limit: int = 5) -> dict[str, Any]:
+def next_learning_targets(
+    limit: int = 5,
+    difficulty: str | None = None,
+    depth: str | None = None,
+) -> dict[str, Any]:
     """Return priority-ordered uncovered items that are good next learning targets."""
     manifest = load_manifest()
     candidates: list[dict[str, Any]] = []
@@ -170,6 +178,8 @@ def next_learning_targets(limit: int = 5) -> dict[str, Any]:
         for item in manifest.get(collection, []):
             if item.get("status") != lowest:
                 continue
+            if not _matches_learning_levels(item, difficulty, depth):
+                continue
             candidates.append(
                 {
                     "collection": collection,
@@ -177,6 +187,8 @@ def next_learning_targets(limit: int = 5) -> dict[str, Any]:
                     "name": item.get("name"),
                     "description": item.get("description"),
                     "status": item.get("status"),
+                    "difficulty": item.get("difficulty"),
+                    "depth": item.get("depth"),
                     "priority": item.get("priority", _inherited_priority(manifest, item)),
                     "guideSection": item.get("guideSection"),
                     "score": _learning_priority_score(manifest, item, collection),
@@ -187,6 +199,8 @@ def next_learning_targets(limit: int = 5) -> dict[str, Any]:
     limit = max(1, limit)
     return {
         "limit": limit,
+        "difficulty": difficulty,
+        "depth": depth,
         "targets": candidates[:limit],
     }
 
@@ -202,6 +216,7 @@ def coverage_summary() -> dict[str, Any]:
     return {
         "project": project,
         "domain": domain,
+        "learningLevels": deepcopy(manifest.get("learningLevels")),
         "summary": deepcopy(summary),
         "synopsis": f"{project} is {overall}% cognitively covered across its {domain} manifest.",
     }
@@ -308,9 +323,13 @@ def build_mcp_server() -> Any:
         return get_area(area_id)
 
     @mcp.tool(name="next_learning_targets")
-    def next_learning_targets_tool(limit: int = 5) -> dict[str, Any]:
-        """Suggest priority-ordered uncovered items to learn next."""
-        return next_learning_targets(limit)
+    def next_learning_targets_tool(
+        limit: int = 5,
+        difficulty: str | None = None,
+        depth: str | None = None,
+    ) -> dict[str, Any]:
+        """Suggest priority-ordered uncovered items to learn next, optionally filtered by level."""
+        return next_learning_targets(limit, difficulty, depth)
 
     @mcp.tool(name="get_concept")
     def get_concept_tool(concept_id: str) -> dict[str, Any]:
@@ -404,17 +423,36 @@ def _find_item(manifest: dict[str, Any], collection: str, item_id: str) -> dict[
 
 def _item_summary(item: dict[str, Any], collection: str) -> dict[str, Any]:
     key = "path" if collection == "files" else "id"
-    return {
+    summary = {
         key: item.get(key),
         "name": item.get("name"),
         "description": item.get("description"),
         "status": item.get("status"),
         "guideSection": item.get("guideSection"),
     }
+    if "difficulty" in item:
+        summary["difficulty"] = item.get("difficulty")
+    if "depth" in item:
+        summary["depth"] = item.get("depth")
+    return summary
 
 
 def _item_in_area(item: dict[str, Any], area_id: str) -> bool:
     return item.get("areaId") == area_id or area_id in item.get("areaIds", [])
+
+
+def _matches_learning_levels(
+    item: dict[str, Any],
+    difficulty: str | None,
+    depth: str | None,
+) -> bool:
+    item_difficulty = item.get("difficulty")
+    item_depth = item.get("depth")
+    if difficulty and item_difficulty and item_difficulty != difficulty:
+        return False
+    if depth and item_depth and item_depth != depth:
+        return False
+    return True
 
 
 def _inherited_priority(manifest: dict[str, Any], item: dict[str, Any]) -> str | None:

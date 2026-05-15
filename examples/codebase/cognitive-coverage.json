@@ -25,6 +25,20 @@
     "generatedModules": ["api-entrypoints", "auth-boundary"],
     "pendingModules": ["data-model"]
   },
+  "learningLevels": {
+    "difficulty": [
+      { "id": "beginner", "label": "Beginner", "description": "Defines project vocabulary and safe navigation paths" },
+      { "id": "intermediate", "label": "Intermediate", "description": "Explains request mechanics and normal change paths" },
+      { "id": "advanced", "label": "Advanced", "description": "Covers security edge cases, tradeoffs, and extension points" }
+    ],
+    "depth": [
+      { "id": "overview", "label": "Overview", "description": "Orients the reader to the main system shape" },
+      { "id": "standard", "label": "Standard", "description": "Provides enough detail for routine API work" },
+      { "id": "deep-dive", "label": "Deep-dive", "description": "Explores implementation details and second-order effects" }
+    ],
+    "defaultDifficulty": "beginner",
+    "defaultDepth": "standard"
+  },
   "summary": {
     "files": { "total": 4, "covered": 0, "percentage": 0 },
     "concepts": { "total": 3, "covered": 0, "percentage": 0 },
@@ -32,28 +46,28 @@
     "overall": 0
   },
   "files": [
-    { "path": "src/server.ts", "status": "uncovered", "description": "Express server setup and middleware chain", "relatedConcepts": ["architecture"], "complexity": "core", "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "architecture", "updatedAt": null },
-    { "path": "src/routes/users.ts", "status": "uncovered", "description": "User CRUD endpoints with validation", "relatedConcepts": ["rest-patterns", "auth"], "complexity": "core", "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "routes", "updatedAt": null },
-    { "path": "src/middleware/auth.ts", "status": "uncovered", "description": "JWT verification and role-based access", "relatedConcepts": ["auth"], "complexity": "core", "areaId": "security", "moduleId": "auth-boundary", "priority": "critical", "guideSection": "auth", "updatedAt": null },
-    { "path": "src/db/schema.ts", "status": "uncovered", "description": "Database schema and migration logic", "relatedConcepts": ["architecture"], "complexity": "supporting", "areaId": "runtime", "moduleId": "data-model", "priority": "medium", "guideSection": "data-model", "updatedAt": null }
+    { "path": "src/server.ts", "status": "uncovered", "description": "Express server setup and middleware chain", "relatedConcepts": ["architecture"], "complexity": "core", "difficulty": "beginner", "depth": "overview", "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "architecture", "updatedAt": null },
+    { "path": "src/routes/users.ts", "status": "uncovered", "description": "User CRUD endpoints with validation", "relatedConcepts": ["rest-patterns", "auth"], "complexity": "core", "difficulty": "intermediate", "depth": "standard", "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "routes", "updatedAt": null },
+    { "path": "src/middleware/auth.ts", "status": "uncovered", "description": "JWT verification and role-based access", "relatedConcepts": ["auth"], "complexity": "core", "difficulty": "advanced", "depth": "deep-dive", "areaId": "security", "moduleId": "auth-boundary", "priority": "critical", "guideSection": "auth", "updatedAt": null },
+    { "path": "src/db/schema.ts", "status": "uncovered", "description": "Database schema and migration logic", "relatedConcepts": ["architecture"], "complexity": "supporting", "difficulty": "beginner", "depth": "standard", "areaId": "runtime", "moduleId": "data-model", "priority": "medium", "guideSection": "data-model", "updatedAt": null }
   ],
   "concepts": [
-    { "id": "architecture", "name": "System Architecture", "description": "Express + TypeScript + PostgreSQL stack with layered middleware", "status": "uncovered", "files": ["src/server.ts", "src/db/schema.ts"], "quizIds": ["q1", "q5"], "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "architecture", "updatedAt": null },
-    { "id": "auth", "name": "Authentication & Authorization", "description": "JWT-based auth with role hierarchy and middleware guards", "status": "uncovered", "files": ["src/middleware/auth.ts"], "quizIds": ["q2", "q3", "q5"], "areaId": "security", "moduleId": "auth-boundary", "priority": "critical", "guideSection": "auth", "updatedAt": null },
-    { "id": "rest-patterns", "name": "REST API Patterns", "description": "Resource routing, validation, error handling, pagination", "status": "uncovered", "files": ["src/routes/users.ts"], "quizIds": ["q4", "q5"], "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "routes", "updatedAt": null }
+    { "id": "architecture", "name": "System Architecture", "description": "Express + TypeScript + PostgreSQL stack with layered middleware", "status": "uncovered", "files": ["src/server.ts", "src/db/schema.ts"], "quizIds": ["q1", "q5"], "difficulty": "beginner", "depth": "overview", "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "architecture", "updatedAt": null },
+    { "id": "auth", "name": "Authentication & Authorization", "description": "JWT-based auth with role hierarchy and middleware guards", "status": "uncovered", "files": ["src/middleware/auth.ts"], "quizIds": ["q2", "q3", "q5"], "difficulty": "advanced", "depth": "deep-dive", "areaId": "security", "moduleId": "auth-boundary", "priority": "critical", "guideSection": "auth", "updatedAt": null },
+    { "id": "rest-patterns", "name": "REST API Patterns", "description": "Resource routing, validation, error handling, pagination", "status": "uncovered", "files": ["src/routes/users.ts"], "quizIds": ["q4", "q5"], "difficulty": "intermediate", "depth": "standard", "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "routes", "updatedAt": null }
   ],
   "flows": [
-    { "id": "auth-flow", "name": "Authentication Flow", "description": "Login request → credential check → JWT issue → subsequent requests verified", "status": "uncovered", "steps": [{"description": "Client sends credentials", "file": "src/routes/users.ts"}, {"description": "Server validates and issues JWT", "file": "src/middleware/auth.ts"}, {"description": "Client includes token in header", "file": "src/middleware/auth.ts"}, {"description": "Middleware verifies on each request", "file": "src/middleware/auth.ts"}], "quizIds": ["q2", "q5"], "areaId": "security", "moduleId": "auth-boundary", "priority": "critical", "guideSection": "auth", "updatedAt": null },
-    { "id": "crud-flow", "name": "CRUD Request Flow", "description": "HTTP request → auth middleware → validation → database → response", "status": "uncovered", "steps": [{"description": "Parse and validate request", "file": "src/routes/users.ts"}, {"description": "Check authorization", "file": "src/middleware/auth.ts"}, {"description": "Execute database operation", "file": "src/db/schema.ts"}, {"description": "Format and return response", "file": "src/routes/users.ts"}], "quizIds": ["q4", "q5"], "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "routes", "updatedAt": null }
+    { "id": "auth-flow", "name": "Authentication Flow", "description": "Login request → credential check → JWT issue → subsequent requests verified", "status": "uncovered", "steps": [{"description": "Client sends credentials", "file": "src/routes/users.ts"}, {"description": "Server validates and issues JWT", "file": "src/middleware/auth.ts"}, {"description": "Client includes token in header", "file": "src/middleware/auth.ts"}, {"description": "Middleware verifies on each request", "file": "src/middleware/auth.ts"}], "quizIds": ["q2", "q5"], "difficulty": "advanced", "depth": "deep-dive", "areaId": "security", "moduleId": "auth-boundary", "priority": "critical", "guideSection": "auth", "updatedAt": null },
+    { "id": "crud-flow", "name": "CRUD Request Flow", "description": "HTTP request → auth middleware → validation → database → response", "status": "uncovered", "steps": [{"description": "Parse and validate request", "file": "src/routes/users.ts"}, {"description": "Check authorization", "file": "src/middleware/auth.ts"}, {"description": "Execute database operation", "file": "src/db/schema.ts"}, {"description": "Format and return response", "file": "src/routes/users.ts"}], "quizIds": ["q4", "q5"], "difficulty": "intermediate", "depth": "standard", "areaId": "runtime", "moduleId": "api-entrypoints", "priority": "high", "guideSection": "routes", "updatedAt": null }
   ],
   "areas": [
-    { "id": "runtime", "name": "Runtime API Surface", "description": "Request routing, middleware order, validation, and persistence boundaries.", "status": "unmapped", "priority": "high", "rationale": "Most feature work starts by understanding how HTTP requests move through the server.", "guideSection": "architecture", "moduleIds": ["api-entrypoints", "data-model"], "updatedAt": null },
-    { "id": "security", "name": "Security Boundary", "description": "Authentication and authorization behavior that protects routes and data access.", "status": "unmapped", "priority": "critical", "rationale": "Auth mistakes can create severe security regressions, so this area should be learned early.", "guideSection": "auth", "moduleIds": ["auth-boundary"], "updatedAt": null }
+    { "id": "runtime", "name": "Runtime API Surface", "description": "Request routing, middleware order, validation, and persistence boundaries.", "status": "unmapped", "difficulty": "beginner", "depth": "overview", "priority": "high", "rationale": "Most feature work starts by understanding how HTTP requests move through the server.", "guideSection": "architecture", "moduleIds": ["api-entrypoints", "data-model"], "updatedAt": null },
+    { "id": "security", "name": "Security Boundary", "description": "Authentication and authorization behavior that protects routes and data access.", "status": "unmapped", "difficulty": "advanced", "depth": "deep-dive", "priority": "critical", "rationale": "Auth mistakes can create severe security regressions, so this area should be learned early.", "guideSection": "auth", "moduleIds": ["auth-boundary"], "updatedAt": null }
   ],
   "modules": [
-    { "id": "api-entrypoints", "areaId": "runtime", "name": "API Entry Points", "description": "How requests enter the Express app and reach route handlers.", "status": "planned", "priority": "high", "guideFile": "learning-guides/api-entrypoints.html", "guideSection": "routes", "filePaths": ["src/server.ts", "src/routes/users.ts"], "conceptIds": ["architecture", "rest-patterns"], "flowIds": ["crud-flow"], "updatedAt": null },
-    { "id": "auth-boundary", "areaId": "security", "name": "Auth Boundary", "description": "How JWT verification and role checks gate protected behavior.", "status": "planned", "priority": "critical", "guideFile": "learning-guides/auth-boundary.html", "guideSection": "auth", "filePaths": ["src/middleware/auth.ts"], "conceptIds": ["auth"], "flowIds": ["auth-flow"], "updatedAt": null },
-    { "id": "data-model", "areaId": "runtime", "name": "Data Model", "description": "How persistent data shapes the rest of the API.", "status": "planned", "priority": "medium", "guideFile": "learning-guides/data-model.html", "guideSection": "data-model", "filePaths": ["src/db/schema.ts"], "conceptIds": ["architecture"], "flowIds": ["crud-flow"], "updatedAt": null }
+    { "id": "api-entrypoints", "areaId": "runtime", "name": "API Entry Points", "description": "How requests enter the Express app and reach route handlers.", "status": "planned", "difficulty": "beginner", "depth": "standard", "priority": "high", "guideFile": "learning-guides/api-entrypoints.html", "guideSection": "routes", "filePaths": ["src/server.ts", "src/routes/users.ts"], "conceptIds": ["architecture", "rest-patterns"], "flowIds": ["crud-flow"], "updatedAt": null },
+    { "id": "auth-boundary", "areaId": "security", "name": "Auth Boundary", "description": "How JWT verification and role checks gate protected behavior.", "status": "planned", "difficulty": "advanced", "depth": "deep-dive", "priority": "critical", "guideFile": "learning-guides/auth-boundary.html", "guideSection": "auth", "filePaths": ["src/middleware/auth.ts"], "conceptIds": ["auth"], "flowIds": ["auth-flow"], "updatedAt": null },
+    { "id": "data-model", "areaId": "runtime", "name": "Data Model", "description": "How persistent data shapes the rest of the API.", "status": "planned", "difficulty": "beginner", "depth": "standard", "priority": "medium", "guideFile": "learning-guides/data-model.html", "guideSection": "data-model", "filePaths": ["src/db/schema.ts"], "conceptIds": ["architecture"], "flowIds": ["crud-flow"], "updatedAt": null }
   ],
   "dependencies": [
     { "from": { "kind": "module", "id": "api-entrypoints" }, "to": { "kind": "module", "id": "auth-boundary" }, "type": "references", "description": "Protected routes require the auth middleware boundary." },
@@ -64,10 +78,10 @@
     { "path": "src/middleware/auth.ts", "summary": "Verifies JWTs and applies role-based authorization.", "whyItMatters": "This is the central security boundary for protected behavior.", "areaId": "security", "moduleId": "auth-boundary", "updatedAt": null }
   ],
   "quizMapping": {
-    "q1": { "concepts": ["architecture"], "flows": [], "files": ["src/server.ts"] },
-    "q2": { "concepts": ["auth"], "flows": ["auth-flow"], "files": ["src/middleware/auth.ts"] },
-    "q3": { "concepts": ["auth"], "flows": [], "files": ["src/middleware/auth.ts"] },
-    "q4": { "concepts": ["rest-patterns"], "flows": ["crud-flow"], "files": ["src/routes/users.ts"] },
-    "q5": { "type": "application", "question": "If you needed to add SSO login, which files and flows would you inspect first, and what would you watch for?", "concepts": ["architecture", "auth", "rest-patterns"], "flows": ["auth-flow", "crud-flow"], "files": ["src/server.ts", "src/routes/users.ts", "src/middleware/auth.ts", "src/db/schema.ts"] }
+    "q1": { "concepts": ["architecture"], "flows": [], "files": ["src/server.ts"], "difficulty": "beginner", "depth": "overview", "questionType": "structure", "prerequisites": [] },
+    "q2": { "concepts": ["auth"], "flows": ["auth-flow"], "files": ["src/middleware/auth.ts"], "difficulty": "advanced", "depth": "deep-dive", "questionType": "behavior", "prerequisites": ["architecture"] },
+    "q3": { "concepts": ["auth"], "flows": [], "files": ["src/middleware/auth.ts"], "difficulty": "advanced", "depth": "standard", "questionType": "boundary", "prerequisites": ["architecture"] },
+    "q4": { "concepts": ["rest-patterns"], "flows": ["crud-flow"], "files": ["src/routes/users.ts"], "difficulty": "intermediate", "depth": "standard", "questionType": "logic", "prerequisites": ["architecture"] },
+    "q5": { "type": "application", "question": "If you needed to add SSO login, which files and flows would you inspect first, and what would you watch for?", "concepts": ["architecture", "auth", "rest-patterns"], "flows": ["auth-flow", "crud-flow"], "files": ["src/server.ts", "src/routes/users.ts", "src/middleware/auth.ts", "src/db/schema.ts"], "difficulty": "advanced", "depth": "deep-dive", "questionType": "application", "prerequisites": ["architecture", "auth", "rest-patterns"] }
   }
 }

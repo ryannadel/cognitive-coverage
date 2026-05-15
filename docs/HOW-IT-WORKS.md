@@ -32,6 +32,7 @@ Cognitive Coverage produces coordinated artifacts:
 A self-contained interactive HTML page that teaches the project from first principles:
 
 - **Structured sections** that build understanding incrementally
+- **Learning-level controls** for difficulty (`beginner`, `intermediate`, `advanced`) and depth (`overview`, `standard`, `deep-dive`)
 - **Source-anchored snippets** — every code block or quote comes from the actual project with file paths
 - **Mental model callouts** — analogies that build intuition, not just knowledge
 - **Warning boxes** — things that are easy to misunderstand
@@ -51,6 +52,7 @@ A machine-readable JSON file that inventories the project across three axes:
 The manifest also contains:
 - **Domain type** (codebase, research, documentation, knowledge) — determines terminology
 - **Quiz mapping** — links each quiz question to the concepts, flows, and files it tests
+- **Learning levels** — optional difficulty/depth metadata for guide sections, quiz questions, and learning targets
 - **Summary statistics** — pre-computed coverage percentages
 - **Optional hierarchy** — areas, modules, dependencies, priorities, and source summaries for large corpora
 
@@ -64,6 +66,7 @@ A visual status board that reads the manifest and shows:
 - **Concept cards** — with status badges, related files, and manual status controls
 - **Flow timelines** — step-by-step diagrams for each traced flow
 - **Gap report** — all uncovered items with "Launch Teaching" buttons
+- **Difficulty/depth filters** — narrow the guide, quiz progress, and gaps to the learner's current path
 
 ### 4. Artifact Launcher (`cognitive-coverage/cognitive-coverage-open.html`)
 
@@ -136,6 +139,19 @@ This makes artifact generation recoverable: if one write method fails, the agent
 6. User returns to dashboard → syncs quiz results → upgrades coverage status
 7. User can also manually mark items via status buttons on the dashboard
 8. Dashboard can export updated manifest as JSON
+
+## Learning Levels
+
+Cognitive Coverage can adapt the same material to different learner needs without generating separate artifact sets by default. The manifest may include a `learningLevels` block with two independent axes:
+
+| Axis | Default levels | Meaning |
+|------|----------------|---------|
+| **Difficulty** | `beginner`, `intermediate`, `advanced` | How much background the reader is expected to have |
+| **Depth** | `overview`, `standard`, `deep-dive` | How much detail the material should reveal |
+
+Difficulty and depth are intentionally separate. A beginner deep-dive can patiently unpack a foundational idea, while an advanced overview can summarize an expert-only subsystem quickly. The generated guide defaults to `beginner` + `standard` unless the user or manifest specifies otherwise.
+
+Level metadata appears on files, concepts, flows, areas, modules, and quiz mappings. The guide uses it for progressive disclosure, the dashboard uses it for badges and gap filters, and MCP tools can return or filter next learning targets by difficulty/depth.
 
 ## Large Corpus Mode
 
