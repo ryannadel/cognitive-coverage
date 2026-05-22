@@ -214,16 +214,15 @@ Generate a single self-contained HTML file (`cognitive-coverage/learning-guide.h
 
 ### Required Sections
 
-1. **Why This Exists** — Problem statement in plain language. No jargon assumed.
-2. **The Big Picture** — Cast of characters / key entities / domain overview.
-3. **Architecture / Structure Map** — Visual diagram (text/CSS-based) of how things relate.
-4. **Core Model** — Data model, state shape, entity relationships, or conceptual framework.
-5. **Core Algorithm / Decision Flow / Central Argument** — The most important behavior or reasoning chain, traced step by step.
-6. **[3-6 additional concept sections]** — One per major subsystem, theory, or topic area, each with:
+1. **The Big Picture** — Cast of characters / key entities / domain overview.
+2. **Architecture / Structure Map** — Visual diagram (text/CSS-based) of how things relate.
+3. **Core Model** — Data model, state shape, entity relationships, or conceptual framework.
+4. **Core Algorithm / Decision Flow / Central Argument** — The most important behavior or reasoning chain, traced step by step.
+5. **[3-6 additional concept sections]** — One per major subsystem, theory, or topic area, each with:
    - Snippets from the actual source material (with source path labels)
    - A "Mental Model" callout with an analogy
    - A "Warning/Key Insight" box for things easy to misunderstand
-7. **Interactive Knowledge Quiz** — 10-20 questions testing comprehension across the generated difficulty/depth levels
+6. **Interactive Knowledge Quiz** — 10-20 questions testing comprehension across the generated difficulty/depth levels
 
 ### Required UI Components
 
@@ -745,23 +744,6 @@ Use the command appropriate for the current environment. If automatic opening fa
 5. **Use the actual source.** Every snippet must come from real content with the real path. Never invent examples.
 6. **Keep snippets focused.** Show the 5-15 lines that matter.
 7. **Build incrementally.** Each section builds on the previous. Don't forward-reference unexplained concepts.
-
----
-
-## Cognitive Debt Framing
-
-Always include this callout near the top of the guide:
-
-```html
-<div class="warning-box">
-  <strong>Why this guide exists.</strong> When AI generates code — or when you inherit
-  a project, paper collection, or documentation set you didn't create — you may accept
-  it without building a mental model of how it actually works. Over time this creates
-  <em>cognitive debt</em>: the system works, but the understanding is missing or flawed.
-  This guide closes that gap, one concept at a time, with pointers to the exact source
-  material that matters.
-</div>
-```
 
 ---
 
