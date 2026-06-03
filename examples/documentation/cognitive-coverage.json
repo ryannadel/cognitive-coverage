@@ -4,6 +4,23 @@
   "domain": "documentation",
   "generatedAt": "2025-01-15T10:00:00Z",
   "updatedAt": null,
+  "incremental": {
+    "enabled": true,
+    "strategy": "modified-time",
+    "baseline": {
+      "capturedAt": "2025-01-14T18:30:00Z",
+      "gitRef": null,
+      "manifestUpdatedAt": "2025-01-14T18:30:00Z",
+      "sourceCount": 3
+    },
+    "lastRefresh": {
+      "mode": "overview",
+      "ranAt": "2025-01-15T10:00:00Z",
+      "changedSources": [],
+      "affectedAreas": [],
+      "affectedModules": []
+    }
+  },
   "labels": {
     "files": "Documents & Pages",
     "concepts": "Topics & Processes",

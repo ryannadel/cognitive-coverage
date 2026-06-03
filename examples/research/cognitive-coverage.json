@@ -4,6 +4,23 @@
   "domain": "research",
   "generatedAt": "2025-01-15T10:00:00Z",
   "updatedAt": null,
+  "incremental": {
+    "enabled": true,
+    "strategy": "source-hash",
+    "baseline": {
+      "capturedAt": "2025-01-14T18:30:00Z",
+      "gitRef": null,
+      "manifestUpdatedAt": "2025-01-14T18:30:00Z",
+      "sourceCount": 4
+    },
+    "lastRefresh": {
+      "mode": "overview",
+      "ranAt": "2025-01-15T10:00:00Z",
+      "changedSources": [],
+      "affectedAreas": [],
+      "affectedModules": []
+    }
+  },
   "labels": {
     "files": "Papers & Sources",
     "concepts": "Theories & Methods",

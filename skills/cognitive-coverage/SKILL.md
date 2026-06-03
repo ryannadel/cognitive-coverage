@@ -165,7 +165,14 @@ If the user asks for a partial or incremental run, use one of these modes:
 | `overview` | Generate the top-level guide, manifest, and dashboard |
 | `area:<id>` | Generate or refresh one focused area/module |
 | `refresh` | Re-read changed sources and update affected summaries, modules, concepts, and flows |
+| `refresh:since-last-run` | Compare current sources to the last completed run baseline and refresh only impacted coverage items |
 | `quiz-only` | Improve comprehension checks without regenerating all teaching content |
+
+When using `refresh:since-last-run`, persist and reuse a deterministic baseline in the manifest:
+- If git history is available, diff from the prior baseline commit/ref to the current ref.
+- Otherwise compare `sourceHash` values (or modification timestamps when hashes are unavailable).
+- Treat all domains the same way: "sources" can be code files, docs pages, papers, runbooks, or other tracked materials.
+- If no valid baseline exists, do a normal `refresh`, then write a new baseline.
 
 ### Large Corpus Quality Standard
 
@@ -538,6 +545,23 @@ Generate a JSON manifest that inventories the project into trackable units.
     "generatedModules": [],
     "pendingModules": []
   },
+  "incremental": {
+    "enabled": true,
+    "strategy": "git-diff|source-hash|modified-time|manual",
+    "baseline": {
+      "capturedAt": "ISO-8601|null",
+      "gitRef": "optional-commit-or-ref",
+      "manifestUpdatedAt": "ISO-8601|null",
+      "sourceCount": 0
+    },
+    "lastRefresh": {
+      "mode": "refresh|refresh:since-last-run|overview|area:<id>|quiz-only|index|null",
+      "ranAt": "ISO-8601|null",
+      "changedSources": ["relative/source-path"],
+      "affectedAreas": ["area-id"],
+      "affectedModules": ["module-id"]
+    }
+  },
   "learningLevels": {
     "difficulty": [
       { "id": "beginner", "label": "Beginner", "description": "Defines vocabulary and purpose with minimal assumed context" },
@@ -658,6 +682,7 @@ Generate a JSON manifest that inventories the project into trackable units.
 6. All statuses start at the first level (uncovered/unread/unseen/unfamiliar/unknown)
 7. Include `domain`, `labels`, and `statusLabels` so the dashboard adapts vocabulary
 8. Include `learningLevels` and tag teachable items plus quiz mappings with `difficulty` and `depth`
+9. For incremental runs, persist an `incremental` baseline and record changed/affected sources in `lastRefresh`
 
 ### Optional MCP Access
 If the host agent has the Cognitive Coverage MCP server installed, it can query and update this manifest mid-session via tools such as `coverage_summary`, `list_uncovered`, `find_by_file`, and `mark_status`.

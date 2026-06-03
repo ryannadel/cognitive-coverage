@@ -25,6 +25,23 @@
     "generatedModules": ["api-entrypoints", "auth-boundary"],
     "pendingModules": ["data-model"]
   },
+  "incremental": {
+    "enabled": true,
+    "strategy": "git-diff",
+    "baseline": {
+      "capturedAt": "2025-01-14T18:30:00Z",
+      "gitRef": "abc123def456",
+      "manifestUpdatedAt": "2025-01-14T18:30:00Z",
+      "sourceCount": 4
+    },
+    "lastRefresh": {
+      "mode": "overview",
+      "ranAt": "2025-01-15T10:00:00Z",
+      "changedSources": [],
+      "affectedAreas": [],
+      "affectedModules": []
+    }
+  },
   "learningLevels": {
     "difficulty": [
       { "id": "beginner", "label": "Beginner", "description": "Defines project vocabulary and safe navigation paths" },
