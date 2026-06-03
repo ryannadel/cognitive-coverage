@@ -42,12 +42,45 @@
         "reason": { "type": ["string", "null"] },
         "runMode": {
           "type": "string",
-          "description": "Current generation mode, such as index, overview, area:<id>, refresh, or quiz-only."
+          "description": "Current generation mode, such as index, overview, area:<id>, refresh, refresh:since-last-run, or quiz-only."
         },
         "sourceCount": { "type": "integer", "minimum": 0 },
         "estimatedTokens": { "type": "integer", "minimum": 0 },
         "generatedModules": { "type": "array", "items": { "type": "string" } },
         "pendingModules": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "incremental": {
+      "type": "object",
+      "description": "Optional metadata that supports deterministic refreshes based on source diffs since the last completed run.",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "strategy": {
+          "type": "string",
+          "enum": ["git-diff", "source-hash", "modified-time", "manual"],
+          "description": "How changed sources are detected for refresh: commit diff, hash diff, timestamp diff, or explicit user list."
+        },
+        "baseline": {
+          "type": "object",
+          "description": "Reference point for the next incremental refresh.",
+          "properties": {
+            "capturedAt": { "type": ["string", "null"], "format": "date-time" },
+            "gitRef": { "type": ["string", "null"] },
+            "manifestUpdatedAt": { "type": ["string", "null"], "format": "date-time" },
+            "sourceCount": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "lastRefresh": {
+          "type": "object",
+          "description": "Metadata from the most recent refresh run.",
+          "properties": {
+            "mode": { "type": ["string", "null"] },
+            "ranAt": { "type": ["string", "null"], "format": "date-time" },
+            "changedSources": { "type": "array", "items": { "type": "string" } },
+            "affectedAreas": { "type": "array", "items": { "type": "string" } },
+            "affectedModules": { "type": "array", "items": { "type": "string" } }
+          }
+        }
       }
     },
     "learningLevels": {

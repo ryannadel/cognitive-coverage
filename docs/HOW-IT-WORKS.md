@@ -183,7 +183,10 @@ Large Corpus Mode supports these run modes:
 | `overview` | Generate the top-level guide, manifest, and dashboard |
 | `area:<id>` | Generate or refresh one focused area/module |
 | `refresh` | Re-read changed sources and update affected summaries |
+| `refresh:since-last-run` | Diff from the last saved baseline and refresh only impacted sources and linked coverage items |
 | `quiz-only` | Improve comprehension checks without regenerating all teaching content |
+
+For deterministic incremental refreshes, manifests can store an `incremental` block with baseline metadata (timestamp, optional git ref, and source count) and the latest refresh impact lists (`changedSources`, `affectedAreas`, `affectedModules`). This works for any domain because "sources" include code files, documents, papers, runbooks, and other tracked corpus items.
 
 The key quality rule is honesty: a first pass can be valuable without claiming complete understanding. High-priority areas should be taught; lower-priority or unvisited areas should remain explicit gaps.
 

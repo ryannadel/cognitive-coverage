@@ -47,6 +47,7 @@ For large projects, Cognitive Coverage switches from a single exhaustive pass to
 6. Keep uncovered areas visible as explicit dashboard gaps
 
 This keeps the first run honest and useful: high-priority understanding is taught immediately, while lower-priority areas remain tracked instead of being hidden inside an oversized guide.
+For follow-up runs, use `refresh:since-last-run` semantics to diff current sources against a saved baseline (`incremental` metadata in the manifest) and regenerate only impacted coverage items.
 
 ### Three Coverage Axes
 
