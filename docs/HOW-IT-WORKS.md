@@ -53,7 +53,7 @@ The manifest also contains:
 - **Domain type** (codebase, research, documentation, knowledge) — determines terminology
 - **Quiz mapping** — links each quiz question to the concepts, flows, and files it tests
 - **Learning levels** — optional difficulty/depth metadata for guide sections, quiz questions, and learning targets
-- **Summary statistics** — pre-computed coverage percentages
+- **Summary statistics** — baseline coverage percentages that the dashboard recalculates after quiz sync
 - **Optional hierarchy** — areas, modules, dependencies, priorities, and source summaries for large corpora
 
 ### 3. Coverage Dashboard (`cognitive-coverage/cognitive-coverage.html`)
@@ -67,6 +67,7 @@ A visual status board that reads the manifest and shows:
 - **Flow timelines** — step-by-step diagrams for each traced flow
 - **Gap report** — all uncovered items with "Launch Teaching" buttons
 - **Difficulty/depth filters** — narrow the guide, quiz progress, and gaps to the learner's current path
+- **Live quiz sync** — merges `localStorage` quiz results with `quizMapping`, recalculates item statuses, and updates percentages
 
 ### 4. Artifact Launcher (`cognitive-coverage/cognitive-coverage-open.html`)
 
@@ -139,6 +140,13 @@ This makes artifact generation recoverable: if one write method fails, the agent
 6. User returns to dashboard → syncs quiz results → upgrades coverage status
 7. User can also manually mark items via status buttons on the dashboard
 8. Dashboard can export updated manifest as JSON
+
+The dashboard does not treat the manifest summary as final after page load. It clones the
+manifest, reads `cognitive-coverage-state` from localStorage, maps quiz results through
+`quizMapping`, applies any manual status overrides, and then recalculates every axis
+percentage before drawing the donut, summary bars, cards, and gap report. If quiz results
+are reset, the same recalculation can move coverage downward so stale verified statuses do
+not remain on screen.
 
 ## Learning Levels
 

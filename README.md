@@ -203,8 +203,8 @@ See [mcp/README.md](mcp/README.md) for Claude Code, Codex, and Cursor setup.
 2. **Dashboard** loads the manifest and renders coverage status
 3. **Gap report** shows uncovered items with "Launch Teaching" buttons
 4. Clicking a button opens the **teaching guide** at the relevant section
-5. Answering quiz questions correctly writes results to **localStorage**
-6. Returning to the dashboard **syncs** quiz results and upgrades coverage
+5. Answering quiz questions writes results to **localStorage**
+6. Returning to the dashboard **syncs** quiz results through the manifest `quizMapping`, recalculates coverage, and updates the chart, bars, cards, and gap report
 7. You can also **manually** set status via buttons on each card
 8. **Export** the updated manifest as JSON anytime
 
