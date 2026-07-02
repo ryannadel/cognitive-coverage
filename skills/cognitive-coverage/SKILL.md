@@ -728,6 +728,102 @@ The dashboard MUST read `labels` and `statusLabels` from the manifest to display
 The dashboard MUST read `learningLevels` when present, render difficulty/depth controls, and preserve existing behavior when the field is absent.
 When `areas` or `modules` are present, the dashboard MUST render them as the top-level navigation layer before files/concepts/flows.
 
+### Required Dashboard Coverage Sync Algorithm
+
+The dashboard MUST derive its displayed coverage from the current manifest plus
+`localStorage` quiz results every time it loads, imports a manifest, resets data,
+or receives focus. Do not render the static `manifest.summary` after load without
+first applying the synced state and recalculating summary percentages.
+
+Use this state contract:
+
+```javascript
+var LS_KEY = 'cognitive-coverage-state';
+// Written by the guide:
+// { quizResults: { q1: { correct: true, difficulty: 'beginner', depth: 'overview', timestamp: '...' } } }
+// Written by the dashboard manual controls:
+// { statusOverrides: { concepts: { 'concept-id': 'quiz-verified' }, files: { 'src/app.ts': 'understood' }, flows: { 'flow-id': 'verified' } } }
+```
+
+Generated dashboards MUST implement equivalent logic to this:
+
+```javascript
+function readCoverageState() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+
+function quizIdsForItem(manifest, axis, item) {
+  var explicit = Array.isArray(item.quizIds) ? item.quizIds : [];
+  var mapped = Object.keys(manifest.quizMapping || {}).filter(function(qId) {
+    var mapping = manifest.quizMapping[qId] || {};
+    if (axis === 'files') return (mapping.files || []).indexOf(item.path) !== -1;
+    if (axis === 'concepts') return (mapping.concepts || []).indexOf(item.id) !== -1;
+    if (axis === 'flows') return (mapping.flows || []).indexOf(item.id) !== -1;
+    return false;
+  });
+  return Array.from(new Set(explicit.concat(mapped)));
+}
+
+function deriveStatusFromQuiz(manifest, axis, item, state) {
+  var labels = (manifest.statusLabels && manifest.statusLabels[axis]) || [];
+  var first = labels[0] || item.status;
+  var partial = labels[1] || item.status;
+  var complete = labels[2] || item.status;
+  var quizIds = quizIdsForItem(manifest, axis, item);
+  if (!quizIds.length) return item.status || first;
+
+  var results = state.quizResults || {};
+  var correct = quizIds.filter(function(qId) { return results[qId] && results[qId].correct === true; });
+  if (correct.length === quizIds.length) return complete;
+  if (correct.length > 0) return partial;
+  return first;
+}
+
+function applySyncedCoverage(manifest) {
+  var state = readCoverageState();
+  var merged = JSON.parse(JSON.stringify(manifest));
+  ['files', 'concepts', 'flows'].forEach(function(axis) {
+    var overrides = state.statusOverrides && state.statusOverrides[axis] || {};
+    (merged[axis] || []).forEach(function(item) {
+      var key = axis === 'files' ? item.path : item.id;
+      item.status = overrides[key] || deriveStatusFromQuiz(merged, axis, item, state);
+      item.updatedAt = overrides[key] ? new Date().toISOString() : item.updatedAt;
+    });
+  });
+  merged.summary = recalculateCoverageSummary(merged);
+  return merged;
+}
+
+function recalculateCoverageSummary(manifest) {
+  var summary = {};
+  var totalItems = 0;
+  var coveredItems = 0;
+  ['files', 'concepts', 'flows'].forEach(function(axis) {
+    var items = manifest[axis] || [];
+    var labels = manifest.statusLabels && manifest.statusLabels[axis] || [];
+    var lowest = labels[0];
+    var covered = items.filter(function(item) { return item.status !== lowest; }).length;
+    summary[axis] = {
+      total: items.length,
+      covered: covered,
+      percentage: items.length ? Math.round(covered / items.length * 100) : 0
+    };
+    totalItems += items.length;
+    coveredItems += covered;
+  });
+  summary.overall = totalItems ? Math.round(coveredItems / totalItems * 100) : 0;
+  return summary;
+}
+```
+
+Manual status controls MUST write to `state.statusOverrides[axis][idOrPath]`, persist
+the shared state, then rerender from `applySyncedCoverage(originalManifest)`. The
+dashboard MUST also listen for `window.storage` and `window.focus` so quiz results
+answered in another tab or in the guide are reflected without requiring a hard refresh.
+When the quiz is reset and `quizResults` is cleared, the dashboard MUST recalculate
+coverage downward instead of keeping stale verified statuses.
+
 ---
 
 ## Phase 6: Artifact Launcher (`cognitive-coverage/cognitive-coverage-open.html`)
