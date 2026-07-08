@@ -219,6 +219,21 @@ Difficulty and depth are orthogonal. For example, a beginner deep-dive can patie
 
 Generate a single self-contained HTML file (`cognitive-coverage/learning-guide.html` by default) with no external dependencies.
 
+### Security: Escape All Interpolated Content (MANDATORY)
+
+The generated artifacts embed **untrusted content** — source snippets, file paths, item names, descriptions, and quiz text all come from the analyzed project, which you did not write and must treat as hostile. A source file (or an imported manifest) can contain markup such as `</pre><script>...</script>` or `<img src=x onerror=...>`. Because these artifacts are opened directly in a browser — and auto-opened in Phase 6 — unescaped content becomes executable JavaScript: a cross-site scripting (XSS) vulnerability.
+
+1. **HTML-escape every interpolated value** before writing it into HTML. At minimum map `&`→`&amp;`, `<`→`&lt;`, `>`→`&gt;`, `"`→`&quot;`, `'`→`&#39;`. This applies to source snippets, file/path labels, concept and flow names, descriptions, mental-model text, and every quiz question, option, and explanation.
+2. **Never build DOM from untrusted strings with `innerHTML`.** When JavaScript inserts manifest-derived text (dashboard cards, imported manifests), use `textContent` / `createTextNode`, or escape the string first.
+3. **Add a restrictive Content-Security-Policy** to the `<head>` of every generated HTML file to contain the impact if something slips through. This policy is compatible with the self-contained, inline-script design and blocks network exfiltration:
+
+```html
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+```
+
+Escaping (rule 1) is the primary defense; the CSP is defense in depth.
+
 ### Required Sections
 
 1. **The Big Picture** — Cast of characters / key entities / domain overview.
@@ -264,6 +279,8 @@ Generate a single self-contained HTML file (`cognitive-coverage/learning-guide.h
 ```
 
 For non-code domains, use `<pre>` or `<blockquote>` with the source path label. The key is always attributing content to its source.
+
+Escape the snippet body **before** wrapping it in `<span>` highlight markup (see "Security: Escape All Interpolated Content"). Apply the highlight spans to the already-escaped text so characters like `<`, `>`, and `&` in the source render literally and can never open a real tag.
 
 #### Flow Diagrams (CSS-based, no images)
 ```html
@@ -693,7 +710,7 @@ Do not assume MCP is available unless the host exposes those tools.
 
 ## Phase 5: Coverage Dashboard (`cognitive-coverage/cognitive-coverage.html`)
 
-Generate a self-contained HTML dashboard.
+Generate a self-contained HTML dashboard. Apply the same escaping and CSP rules as the teaching guide (see "Security: Escape All Interpolated Content" in Phase 3). The dashboard renders manifest `name`/`description` fields and can **import an arbitrary manifest via file input**, so all manifest-derived text MUST be inserted with `textContent` or escaped before use — never via `innerHTML` — and the file MUST include the restrictive CSP meta tag.
 
 ### Dashboard Features
 1. **Overall coverage donut chart** (canvas-based)
@@ -962,6 +979,8 @@ Before delivering, verify:
 - [ ] Quiz questions include difficulty/depth metadata and cover the intended learner path
 - [ ] Quiz includes localStorage sync to coverage state
 - [ ] Level controls work as progressive enhancement and leave default content visible
+- [ ] Every interpolated value (snippets, paths, names, descriptions, quiz text) is HTML-escaped
+- [ ] The `<head>` includes the restrictive Content-Security-Policy meta tag
 - [ ] HTML is valid and self-contained
 
 ### Coverage Manifest
@@ -984,6 +1003,8 @@ Before delivering, verify:
 - [ ] localStorage sync reads quiz results on load
 - [ ] Status terminology matches the domain
 - [ ] Difficulty/depth badges and filters work when `learningLevels` is present
+- [ ] Imported/rendered manifest text uses `textContent` or is escaped (never `innerHTML`)
+- [ ] The `<head>` includes the restrictive Content-Security-Policy meta tag
 
 ### Artifact Launcher
 - [ ] Links to the teaching guide, dashboard, and manifest with relative paths

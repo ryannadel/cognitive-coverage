@@ -32,9 +32,22 @@ MANIFEST_PATH = Path.cwd() / "cognitive-coverage.json"
 
 
 def configure_manifest(path: str | Path | None) -> None:
-    """Set the manifest path used by tool handlers."""
+    """Set the manifest path used by tool handlers.
+
+    ``path`` comes from the ``--manifest`` launch flag, which is trusted operator
+    configuration rather than remote or tool-call input. As defense in depth we
+    still require it to resolve to a ``.json`` file so a mistyped flag cannot
+    redirect the atomic write in ``save_manifest`` to an unexpected location.
+    """
     global MANIFEST_PATH
-    MANIFEST_PATH = Path(path).expanduser().resolve() if path else Path.cwd() / "cognitive-coverage.json"
+    resolved = (
+        Path(path).expanduser().resolve()
+        if path
+        else Path.cwd() / "cognitive-coverage.json"
+    )
+    if resolved.suffix.lower() != ".json":
+        raise ValueError(f"Manifest path must be a .json file, got: {resolved}")
+    MANIFEST_PATH = resolved
 
 
 def load_manifest() -> dict[str, Any]:

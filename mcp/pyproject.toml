@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "MCP stdio server for Cognitive Coverage manifests"
 requires-python = ">=3.10"
 dependencies = [
-  "mcp>=1.2.0"
+  "mcp>=1.2.0,<2"
 ]
 
 [dependency-groups]
