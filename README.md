@@ -68,7 +68,12 @@ Generated materials can adapt to a 3x3 learning model:
 | **Difficulty** | `beginner`, `intermediate`, `advanced` | Learner background and assumed context |
 | **Depth** | `overview`, `standard`, `deep-dive` | Amount of detail shown in the guide and quiz |
 
-The manifest stores optional level metadata on teachable items and quiz mappings. Guides use it for progressive disclosure, dashboards use it for gap filters and level badges, and MCP tools can return level-aware next learning targets.
+The manifest stores optional level metadata on teachable items and quiz mappings. In the guide,
+changing difficulty swaps the explanation lens (vocabulary, mechanics, or expert tradeoffs), while
+changing depth progressively reveals overview, operational, or implementation detail. The quiz
+also switches to questions for the exact selected pair and recalculates its total. Dashboards use
+the same metadata for gap filters and level badges, and MCP tools can return level-aware next
+learning targets.
 
 ## Quick Start
 

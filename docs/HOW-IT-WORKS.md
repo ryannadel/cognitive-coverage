@@ -150,7 +150,9 @@ not remain on screen.
 
 ## Learning Levels
 
-Cognitive Coverage can adapt the same material to different learner needs without generating separate artifact sets by default. The manifest may include a `learningLevels` block with two independent axes:
+Cognitive Coverage adapts teaching material to different learner needs without generating separate
+artifact sets by default. The manifest may include a `learningLevels` block with two independent
+axes:
 
 | Axis | Default levels | Meaning |
 |------|----------------|---------|
@@ -159,7 +161,19 @@ Cognitive Coverage can adapt the same material to different learner needs withou
 
 Difficulty and depth are intentionally separate. A beginner deep-dive can patiently unpack a foundational idea, while an advanced overview can summarize an expert-only subsystem quickly. The generated guide defaults to `beginner` + `standard` unless the user or manifest specifies otherwise.
 
-Level metadata appears on files, concepts, flows, areas, modules, and quiz mappings. The guide uses it for progressive disclosure, the dashboard uses it for badges and gap filters, and MCP tools can return or filter next learning targets by difficulty/depth.
+Each major guide section contains three difficulty lenses and three cumulative depth layers.
+Difficulty replaces the framing and assumed background: beginner defines vocabulary and purpose,
+intermediate traces normal mechanics and change paths, and advanced focuses on failure modes,
+tradeoffs, and extension points. Depth controls how much source-anchored detail is shown: overview
+alone, overview plus standard, or all layers through deep-dive.
+
+The quiz contains two questions for every difficulty/depth combination. It shows only the exact
+selected pair and recalculates score, total, and progress from those visible questions. This means
+both controls change the material being taught and tested rather than only changing badges.
+
+Level metadata also appears on files, concepts, flows, areas, modules, and quiz mappings. The
+dashboard uses it for badges and gap filters, and MCP tools can return or filter next learning
+targets by difficulty/depth.
 
 ## Large Corpus Mode
 

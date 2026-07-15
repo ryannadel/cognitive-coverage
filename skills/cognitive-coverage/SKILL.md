@@ -201,7 +201,7 @@ From your analysis, identify:
 
 ### Learning Level Extraction
 
-Assign every teachable concept, flow, area, module, and quiz question two independent learning levels:
+Assign every teachable concept, flow, area, module, and quiz question two independent learning levels for manifest classification and learning-target recommendations:
 
 - **Difficulty**: learner background required.
   - `beginner` — assumes little project/domain context; defines vocabulary and purpose.
@@ -213,6 +213,20 @@ Assign every teachable concept, flow, area, module, and quiz question two indepe
   - `deep-dive` — implementation details, nuanced constraints, and second-order effects.
 
 Difficulty and depth are orthogonal. For example, a beginner deep-dive can patiently unpack one foundational topic in detail, while an advanced overview can summarize an expert-only area quickly. Use `beginner` + `standard` as the default path unless the user requests a different audience.
+
+The guide itself MUST contain materially different content for both axes. Do not tag one whole
+section with a single difficulty/depth pair and call that adaptation. For every major teaching
+section, generate:
+
+- Three **difficulty lenses**: beginner defines vocabulary and purpose, intermediate explains
+  mechanics and normal change paths, and advanced examines tradeoffs, failure modes, and extension
+  points.
+- Three **depth layers**: overview gives the shortest useful orientation, standard adds operational
+  reasoning, and deep-dive adds implementation detail and second-order effects.
+
+Difficulty lenses are mutually exclusive. Depth layers are cumulative: standard includes overview,
+and deep-dive includes overview plus standard. Every lens and layer must teach real, source-anchored
+material rather than merely changing labels, badges, or introductory wording.
 
 ---
 ## Phase 3: Teaching Guide Generation
@@ -322,33 +336,74 @@ Rules:
 </div>
 ```
 
-Mark level-aware sections with attributes:
+Keep each canonical major section as a stable navigation wrapper. Put adaptive content inside it:
 ```html
-<section id="auth" data-difficulty="intermediate" data-depth="standard">
-  ...
+<section id="auth" class="teaching-section">
+  <h2>Authentication boundary</h2>
+
+  <div data-difficulty-content="beginner">
+    Define the actors, vocabulary, and purpose using the actual sources.
+  </div>
+  <div data-difficulty-content="intermediate">
+    Explain normal mechanics and the common change path using the actual sources.
+  </div>
+  <div data-difficulty-content="advanced">
+    Explain failure modes, tradeoffs, and extension points using the actual sources.
+  </div>
+
+  <div data-depth-content="overview">Shortest useful orientation.</div>
+  <div data-depth-content="standard">Operational reasoning and normal behavior.</div>
+  <div data-depth-content="deep-dive">Implementation details and cascading effects.</div>
 </section>
 ```
 
-The guide should remain useful with JavaScript disabled: default content must be visible, and filters should progressively enhance the page rather than hide everything.
+Do not duplicate the canonical `<section>` or its ID for each level. The three difficulty lenses and
+three depth layers live inside the same section so navigation and manifest anchors remain stable.
+
+The guide should remain useful with JavaScript disabled: all adaptive content may be visible as a
+linear document before enhancement. JavaScript must then show exactly one difficulty lens, the
+selected depth and all shallower depth layers, and only quiz questions matching the exact selected
+pair. Do not keep the default blocks visible after another level is selected.
 
 ```javascript
+var depthRank = { 'overview': 0, 'standard': 1, 'deep-dive': 2 };
+
 function applyLearningLevelFilters() {
   var difficulty = document.getElementById('difficulty-filter').value;
   var depth = document.getElementById('depth-filter').value;
-  document.querySelectorAll('[data-difficulty][data-depth]').forEach(function(el) {
-    var visible = el.dataset.difficulty === difficulty && el.dataset.depth === depth;
-    var isDefault = el.dataset.difficulty === 'beginner' && el.dataset.depth === 'standard';
-    el.hidden = !(visible || isDefault);
+
+  document.querySelectorAll('[data-difficulty-content]').forEach(function(el) {
+    el.hidden = el.dataset.difficultyContent !== difficulty;
   });
+  document.querySelectorAll('[data-depth-content]').forEach(function(el) {
+    el.hidden = depthRank[el.dataset.depthContent] > depthRank[depth];
+  });
+  document.querySelectorAll('.quiz-card[data-difficulty][data-depth]').forEach(function(card) {
+    card.hidden = card.dataset.difficulty !== difficulty || card.dataset.depth !== depth;
+  });
+
+  var status = document.getElementById('level-status');
+  if (status) status.textContent = difficulty + ' difficulty, ' + depth + ' depth';
+  updateQuizProgress();
 }
+
+document.addEventListener('DOMContentLoaded', applyLearningLevelFilters);
 ```
+
+Include a visible `<span id="level-status" aria-live="polite"></span>` near the controls so the
+active learning path is clear.
+
+Before delivery, exercise all nine difficulty/depth combinations. Every difficulty change must
+replace visible explanation content in every major section. Every depth change must add or remove
+at least one substantive block in every major section. The visible quiz question IDs must also
+change for every combination.
 
 ### Quiz Requirements
 
 The quiz is critical — it verifies genuine understanding, not just reading.
 
 #### Quiz Rules
-1. **10-20 questions** covering all major sections
+1. **18 questions** covering all major sections, with exactly two questions for each of the nine difficulty/depth combinations
 2. **Multiple choice** (3-4 options per question)
 3. **Every question maps to a specific concept** taught in the guide
 4. **Explanations revealed on answer** — citing the specific source
@@ -375,6 +430,8 @@ Balance quiz coverage across levels:
 - Intermediate questions should test normal mechanics and common change paths.
 - Advanced questions should test boundaries, failure modes, tradeoffs, and cascading effects.
 - Overview questions should validate the map; standard questions should validate reasoning; deep-dive questions should validate detailed comprehension.
+- Filtering must show only questions whose difficulty and depth exactly match both selected
+  controls. Never leave beginner/default questions visible on intermediate or advanced paths.
 
 #### Quiz Implementation
 ```html
@@ -391,7 +448,7 @@ Balance quiz coverage across levels:
   </div>
 </div>
 
-<div class="quiz-card" data-quiz="q5">
+<div class="quiz-card" data-quiz="q5" data-difficulty="intermediate" data-depth="standard">
   <h4>Q5: Application</h4>
   <p class="question">If you needed to add SSO login, which source areas would you inspect first?</p>
   <ul class="quiz-options">
@@ -419,7 +476,7 @@ Map application questions to the files, concepts, and flows needed to take the a
 
 #### Quiz JavaScript (with Coverage Sync)
 ```javascript
-var score=0, answered=0, total=N, answeredSet=new Set();
+var answeredSet=new Set();
 var LS_KEY='cognitive-coverage-state';
 
 function syncQuizResult(qId, isCorrect) {
@@ -438,22 +495,35 @@ function syncQuizResult(qId, isCorrect) {
 
 function selectAnswer(li, qId, isCorrect) {
   if (answeredSet.has(qId)) return;
-  answeredSet.add(qId); answered++;
+  answeredSet.add(qId);
+  var card = li.closest('.quiz-card');
+  card.dataset.result = isCorrect ? 'correct' : 'incorrect';
   var opts = li.parentElement.querySelectorAll('li');
   opts.forEach(function(o) { o.style.pointerEvents='none'; o.style.opacity='0.6'; });
-  if (isCorrect) { li.classList.add('correct'); li.style.opacity='1'; score++; }
+  if (isCorrect) { li.classList.add('correct'); li.style.opacity='1'; }
   else { li.classList.add('incorrect'); li.style.opacity='1'; }
   document.getElementById(qId+'-exp').classList.add('visible');
-  document.getElementById('score-value').textContent = score;
-  document.getElementById('prog-fill').style.width = (answered/total*100)+'%';
   syncQuizResult(qId, isCorrect);
+  updateQuizProgress();
+}
+
+function updateQuizProgress() {
+  var visible = Array.from(document.querySelectorAll('.quiz-card[data-quiz]')).filter(function(card) {
+    return !card.hidden;
+  });
+  var answered = visible.filter(function(card) { return answeredSet.has(card.dataset.quiz); });
+  var score = answered.filter(function(card) { return card.dataset.result === 'correct'; }).length;
+  document.getElementById('score-value').textContent = score;
+  document.getElementById('total-value').textContent = visible.length;
+  document.getElementById('answered-value').textContent = answered.length;
+  document.getElementById('prog-fill').style.width =
+    (visible.length ? answered.length / visible.length * 100 : 0) + '%';
 }
 
 function resetQuiz() {
-  score=0; answered=0; answeredSet.clear();
-  document.getElementById('score-value').textContent = '0';
-  document.getElementById('prog-fill').style.width = '0%';
+  answeredSet.clear();
   document.querySelectorAll('.quiz-card').forEach(function(c) {
+    delete c.dataset.result;
     c.querySelectorAll('li').forEach(function(l) {
       l.classList.remove('correct','incorrect');
       l.style.pointerEvents=''; l.style.opacity='';
@@ -463,8 +533,13 @@ function resetQuiz() {
   var state;
   try { state = JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { state = {}; }
   if (state.quizResults) { state.quizResults = {}; localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  updateQuizProgress();
 }
 ```
+
+The score UI must include `score-value`, `total-value`, and `answered-value`. Because the visible
+quiz set changes with the controls, never hard-code the total or calculate progress from hidden
+questions.
 
 Include a **coverage sync banner** at the top of the quiz section:
 ```html
@@ -961,7 +1036,10 @@ Before delivering, verify:
 - [ ] Quiz has 10+ questions spanning all sections
 - [ ] Quiz questions include difficulty/depth metadata and cover the intended learner path
 - [ ] Quiz includes localStorage sync to coverage state
-- [ ] Level controls work as progressive enhancement and leave default content visible
+- [ ] Every major section has three substantive difficulty lenses and three substantive depth layers
+- [ ] All nine level combinations visibly change guide content and the exact-match quiz set
+- [ ] Quiz totals and progress are recalculated from visible questions after each level change
+- [ ] Level controls work as progressive enhancement and leave useful content visible without JavaScript
 - [ ] HTML is valid and self-contained
 
 ### Coverage Manifest
