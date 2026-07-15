@@ -201,7 +201,7 @@ From your analysis, identify:
 
 ### Learning Level Extraction
 
-Assign every teachable concept, flow, area, module, and quiz question two independent learning levels:
+Assign every teachable concept, flow, area, module, and quiz question two independent learning levels for manifest classification and learning-target recommendations:
 
 - **Difficulty**: learner background required.
   - `beginner` — assumes little project/domain context; defines vocabulary and purpose.
@@ -213,6 +213,20 @@ Assign every teachable concept, flow, area, module, and quiz question two indepe
   - `deep-dive` — implementation details, nuanced constraints, and second-order effects.
 
 Difficulty and depth are orthogonal. For example, a beginner deep-dive can patiently unpack one foundational topic in detail, while an advanced overview can summarize an expert-only area quickly. Use `beginner` + `standard` as the default path unless the user requests a different audience.
+
+The guide itself MUST contain materially different content for both axes. Do not tag one whole
+section with a single difficulty/depth pair and call that adaptation. For every major teaching
+section, generate:
+
+- Three **difficulty lenses**: beginner defines vocabulary and purpose, intermediate explains
+  mechanics and normal change paths, and advanced examines tradeoffs, failure modes, and extension
+  points.
+- Three **depth layers**: overview gives the shortest useful orientation, standard adds operational
+  reasoning, and deep-dive adds implementation detail and second-order effects.
+
+Difficulty lenses are mutually exclusive. Depth layers are cumulative: standard includes overview,
+and deep-dive includes overview plus standard. Every lens and layer must teach real, source-anchored
+material rather than merely changing labels, badges, or introductory wording.
 
 ---
 ## Phase 3: Teaching Guide Generation
@@ -322,33 +336,74 @@ Rules:
 </div>
 ```
 
-Mark level-aware sections with attributes:
+Keep each canonical major section as a stable navigation wrapper. Put adaptive content inside it:
 ```html
-<section id="auth" data-difficulty="intermediate" data-depth="standard">
-  ...
+<section id="auth" class="teaching-section">
+  <h2>Authentication boundary</h2>
+
+  <div data-difficulty-content="beginner">
+    Define the actors, vocabulary, and purpose using the actual sources.
+  </div>
+  <div data-difficulty-content="intermediate">
+    Explain normal mechanics and the common change path using the actual sources.
+  </div>
+  <div data-difficulty-content="advanced">
+    Explain failure modes, tradeoffs, and extension points using the actual sources.
+  </div>
+
+  <div data-depth-content="overview">Shortest useful orientation.</div>
+  <div data-depth-content="standard">Operational reasoning and normal behavior.</div>
+  <div data-depth-content="deep-dive">Implementation details and cascading effects.</div>
 </section>
 ```
 
-The guide should remain useful with JavaScript disabled: default content must be visible, and filters should progressively enhance the page rather than hide everything.
+Do not duplicate the canonical `<section>` or its ID for each level. The three difficulty lenses and
+three depth layers live inside the same section so navigation and manifest anchors remain stable.
+
+The guide should remain useful with JavaScript disabled: all adaptive content may be visible as a
+linear document before enhancement. JavaScript must then show exactly one difficulty lens, the
+selected depth and all shallower depth layers, and only quiz questions matching the exact selected
+pair. Do not keep the default blocks visible after another level is selected.
 
 ```javascript
+var depthRank = { 'overview': 0, 'standard': 1, 'deep-dive': 2 };
+
 function applyLearningLevelFilters() {
   var difficulty = document.getElementById('difficulty-filter').value;
   var depth = document.getElementById('depth-filter').value;
-  document.querySelectorAll('[data-difficulty][data-depth]').forEach(function(el) {
-    var visible = el.dataset.difficulty === difficulty && el.dataset.depth === depth;
-    var isDefault = el.dataset.difficulty === 'beginner' && el.dataset.depth === 'standard';
-    el.hidden = !(visible || isDefault);
+
+  document.querySelectorAll('[data-difficulty-content]').forEach(function(el) {
+    el.hidden = el.dataset.difficultyContent !== difficulty;
   });
+  document.querySelectorAll('[data-depth-content]').forEach(function(el) {
+    el.hidden = depthRank[el.dataset.depthContent] > depthRank[depth];
+  });
+  document.querySelectorAll('.quiz-card[data-difficulty][data-depth]').forEach(function(card) {
+    card.hidden = card.dataset.difficulty !== difficulty || card.dataset.depth !== depth;
+  });
+
+  var status = document.getElementById('level-status');
+  if (status) status.textContent = difficulty + ' difficulty, ' + depth + ' depth';
+  updateQuizProgress();
 }
+
+document.addEventListener('DOMContentLoaded', applyLearningLevelFilters);
 ```
+
+Include a visible `<span id="level-status" aria-live="polite"></span>` near the controls so the
+active learning path is clear.
+
+Before delivery, exercise all nine difficulty/depth combinations. Every difficulty change must
+replace visible explanation content in every major section. Every depth change must add or remove
+at least one substantive block in every major section. The visible quiz question IDs must also
+change for every combination.
 
 ### Quiz Requirements
 
 The quiz is critical — it verifies genuine understanding, not just reading.
 
 #### Quiz Rules
-1. **10-20 questions** covering all major sections
+1. **18 questions** covering all major sections, with exactly two questions for each of the nine difficulty/depth combinations
 2. **Multiple choice** (3-4 options per question)
 3. **Every question maps to a specific concept** taught in the guide
 4. **Explanations revealed on answer** — citing the specific source
@@ -375,6 +430,8 @@ Balance quiz coverage across levels:
 - Intermediate questions should test normal mechanics and common change paths.
 - Advanced questions should test boundaries, failure modes, tradeoffs, and cascading effects.
 - Overview questions should validate the map; standard questions should validate reasoning; deep-dive questions should validate detailed comprehension.
+- Filtering must show only questions whose difficulty and depth exactly match both selected
+  controls. Never leave beginner/default questions visible on intermediate or advanced paths.
 
 #### Quiz Implementation
 ```html
@@ -391,7 +448,7 @@ Balance quiz coverage across levels:
   </div>
 </div>
 
-<div class="quiz-card" data-quiz="q5">
+<div class="quiz-card" data-quiz="q5" data-difficulty="intermediate" data-depth="standard">
   <h4>Q5: Application</h4>
   <p class="question">If you needed to add SSO login, which source areas would you inspect first?</p>
   <ul class="quiz-options">
@@ -419,41 +476,70 @@ Map application questions to the files, concepts, and flows needed to take the a
 
 #### Quiz JavaScript (with Coverage Sync)
 ```javascript
-var score=0, answered=0, total=N, answeredSet=new Set();
+var answeredSet=new Set();
+var quizResults={};
 var LS_KEY='cognitive-coverage-state';
+
+function writeCoverageState(state) {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
 
 function syncQuizResult(qId, isCorrect) {
   var card = document.querySelector('[data-quiz="'+qId+'"]');
-  var state;
-  try { state = JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { state = {}; }
-  if (!state.quizResults) state.quizResults = {};
-  state.quizResults[qId] = {
+  var result = {
     correct: isCorrect,
     difficulty: card && card.dataset.difficulty,
     depth: card && card.dataset.depth,
     timestamp: new Date().toISOString()
   };
-  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  quizResults[qId] = result;
+  var state;
+  try { state = JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { state = {}; }
+  if (!state.quizResults) state.quizResults = {};
+  state.quizResults[qId] = result;
+  if (!writeCoverageState(state)) {
+    document.getElementById('quiz-submit-status').textContent =
+      'Browser storage is unavailable; use Submit to transfer these answers.';
+  }
 }
 
 function selectAnswer(li, qId, isCorrect) {
   if (answeredSet.has(qId)) return;
-  answeredSet.add(qId); answered++;
+  answeredSet.add(qId);
+  var card = li.closest('.quiz-card');
+  card.dataset.result = isCorrect ? 'correct' : 'incorrect';
   var opts = li.parentElement.querySelectorAll('li');
   opts.forEach(function(o) { o.style.pointerEvents='none'; o.style.opacity='0.6'; });
-  if (isCorrect) { li.classList.add('correct'); li.style.opacity='1'; score++; }
+  if (isCorrect) { li.classList.add('correct'); li.style.opacity='1'; }
   else { li.classList.add('incorrect'); li.style.opacity='1'; }
   document.getElementById(qId+'-exp').classList.add('visible');
-  document.getElementById('score-value').textContent = score;
-  document.getElementById('prog-fill').style.width = (answered/total*100)+'%';
   syncQuizResult(qId, isCorrect);
+  updateQuizProgress();
+}
+
+function updateQuizProgress() {
+  var visible = Array.from(document.querySelectorAll('.quiz-card[data-quiz]')).filter(function(card) {
+    return !card.hidden;
+  });
+  var answered = visible.filter(function(card) { return answeredSet.has(card.dataset.quiz); });
+  var score = answered.filter(function(card) { return card.dataset.result === 'correct'; }).length;
+  document.getElementById('score-value').textContent = score;
+  document.getElementById('total-value').textContent = visible.length;
+  document.getElementById('answered-value').textContent = answered.length;
+  document.getElementById('prog-fill').style.width =
+    (visible.length ? answered.length / visible.length * 100 : 0) + '%';
 }
 
 function resetQuiz() {
-  score=0; answered=0; answeredSet.clear();
-  document.getElementById('score-value').textContent = '0';
-  document.getElementById('prog-fill').style.width = '0%';
+  answeredSet.clear();
+  quizResults = {};
   document.querySelectorAll('.quiz-card').forEach(function(c) {
+    delete c.dataset.result;
     c.querySelectorAll('li').forEach(function(l) {
       l.classList.remove('correct','incorrect');
       l.style.pointerEvents=''; l.style.opacity='';
@@ -462,17 +548,57 @@ function resetQuiz() {
   });
   var state;
   try { state = JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { state = {}; }
-  if (state.quizResults) { state.quizResults = {}; localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  if (state.quizResults) {
+    state.quizResults = {};
+    writeCoverageState(state);
+  }
+  updateQuizProgress();
+}
+
+function encodeQuizTransfer(results) {
+  var json = JSON.stringify({ version: 1, quizResults: results });
+  var bytes = new TextEncoder().encode(json);
+  var binary = '';
+  bytes.forEach(function(byte) { binary += String.fromCharCode(byte); });
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function submitQuizToDashboard() {
+  var status = document.getElementById('quiz-submit-status');
+  if (!Object.keys(quizResults).length) {
+    status.textContent = 'Answer at least one question before submitting.';
+    return;
+  }
+  status.textContent = 'Opening the dashboard with your quiz results...';
+  window.location.href =
+    'cognitive-coverage.html#quiz-results=' + encodeURIComponent(encodeQuizTransfer(quizResults));
 }
 ```
 
-Include a **coverage sync banner** at the top of the quiz section:
+The score UI must include `score-value`, `total-value`, and `answered-value`. Because the visible
+quiz set changes with the controls, never hard-code the total or calculate progress from hidden
+questions.
+
+`quizResults` is intentionally kept in memory as well as written to localStorage. Browsers do not
+reliably share localStorage between separate pages opened from `file://`, so localStorage alone is
+not a valid cross-artifact transport.
+
+Include a **coverage sync banner** at the top of the quiz section and a submit action after the quiz:
 ```html
 <div id="coverage-sync-banner">
-  <strong>Coverage Sync Active</strong> — Quiz results sync to the
-  <a href="cognitive-coverage.html">Coverage Dashboard</a> automatically.
+  <strong>Coverage Sync</strong> — Submit your answers when ready to update the dashboard.
 </div>
+
+<button id="submit-quiz" type="button" onclick="submitQuizToDashboard()">
+  Submit quiz to dashboard
+</button>
+<span id="quiz-submit-status" role="status" aria-live="polite"></span>
 ```
+
+The submit button MUST transfer the in-memory quiz results in the dashboard URL fragment and
+navigate to `cognitive-coverage.html`. Do not claim that localStorage synchronizes separate
+`file://` artifacts automatically. The fragment is a transport only; the dashboard must remove it
+from the address bar immediately after import.
 ## CSS Theme
 
 Use this dark theme. Do NOT use external CSS frameworks or fonts.
@@ -705,7 +831,7 @@ Generate a self-contained HTML dashboard.
 7. **Gap report** — all uncovered items with "Launch Teaching" links to guide sections
 8. **Status controls** — clickable buttons to manually set status per item
 9. **Export/Import** — load manifest via file input, export updated JSON
-10. **localStorage sync** — reads/writes to `cognitive-coverage-state`
+10. **Coverage state sync** — imports submitted quiz results from the URL fragment, then reads/writes `cognitive-coverage-state`
 11. **Domain-adaptive labels** — reads `labels` and `statusLabels` from manifest
 12. **Learning-level filters** — reads `learningLevels` and lets users filter gaps and quiz progress by difficulty/depth
 13. **Level badges** — show difficulty/depth on files, concepts, flows, areas, modules, and quiz-linked cards
@@ -719,7 +845,8 @@ For Large Corpus Mode, add:
 
 ### Bidirectional Integration
 - Dashboard "Learn" buttons → `learning-guide.html#section-id`
-- Teaching guide quiz answers → localStorage → dashboard reads on load
+- Teaching guide "Submit quiz" → URL-fragment handoff → dashboard imports before rendering
+- localStorage retains state within each artifact when the browser supports it
 - Shared localStorage key: `cognitive-coverage-state`
 
 Dashboard "Learn" links MUST use only canonical section IDs that exist in the generated
@@ -730,15 +857,17 @@ When `areas` or `modules` are present, the dashboard MUST render them as the top
 
 ### Required Dashboard Coverage Sync Algorithm
 
-The dashboard MUST derive its displayed coverage from the current manifest plus
-`localStorage` quiz results every time it loads, imports a manifest, resets data,
-or receives focus. Do not render the static `manifest.summary` after load without
-first applying the synced state and recalculating summary percentages.
+The dashboard MUST import submitted quiz results from its URL fragment before its first render.
+It must then derive displayed coverage from the current manifest plus imported and locally stored
+quiz results every time it loads, imports a manifest, resets data, or receives focus. Do not render
+the static `manifest.summary` after load without first applying the synced state and recalculating
+summary percentages.
 
 Use this state contract:
 
 ```javascript
 var LS_KEY = 'cognitive-coverage-state';
+var transferredQuizResults = Object.create(null);
 // Written by the guide:
 // { quizResults: { q1: { correct: true, difficulty: 'beginner', depth: 'overview', timestamp: '...' } } }
 // Written by the dashboard manual controls:
@@ -749,8 +878,64 @@ Generated dashboards MUST implement equivalent logic to this:
 
 ```javascript
 function readCoverageState() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
-  catch (e) { return {}; }
+  var state;
+  try { state = JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
+  catch (e) { state = {}; }
+  state.quizResults = Object.assign({}, state.quizResults || {}, transferredQuizResults);
+  return state;
+}
+
+function writeCoverageState(state) {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function decodeQuizTransfer(encoded) {
+  var base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) base64 += '=';
+  var binary = atob(base64);
+  var bytes = Uint8Array.from(binary, function(char) { return char.charCodeAt(0); });
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+function importQuizTransferFromUrl() {
+  var params = new URLSearchParams(window.location.hash.slice(1));
+  var encoded = params.get('quiz-results');
+  if (!encoded) return { count: 0, persisted: true };
+
+  var payload;
+  try { payload = decodeQuizTransfer(encoded); }
+  catch (e) {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    throw new Error('The submitted quiz results could not be decoded.');
+  }
+  if (!payload || payload.version !== 1 || !payload.quizResults ||
+      typeof payload.quizResults !== 'object' || Array.isArray(payload.quizResults)) {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    throw new Error('The submitted quiz results use an unsupported format.');
+  }
+
+  Object.keys(payload.quizResults).forEach(function(qId) {
+    var result = payload.quizResults[qId];
+    if (/^q[a-zA-Z0-9_-]{1,64}$/.test(qId) &&
+        result && typeof result.correct === 'boolean') {
+      transferredQuizResults[qId] = {
+        correct: result.correct,
+        difficulty: typeof result.difficulty === 'string' ? result.difficulty : undefined,
+        depth: typeof result.depth === 'string' ? result.depth : undefined,
+        timestamp: typeof result.timestamp === 'string' ? result.timestamp : undefined
+      };
+    }
+  });
+
+  var state = readCoverageState();
+  var persisted = writeCoverageState(state);
+  window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  return { count: Object.keys(transferredQuizResults).length, persisted: persisted };
 }
 
 function quizIdsForItem(manifest, axis, item) {
@@ -816,6 +1001,13 @@ function recalculateCoverageSummary(manifest) {
   return summary;
 }
 ```
+
+Call `importQuizTransferFromUrl()` once during dashboard initialization, before
+`applySyncedCoverage()` or any initial render. Show a visible success message in an element with
+`id="quiz-import-status"` using the returned answer count. If `persisted` is false, explain that the
+answers remain available for the current dashboard page but browser storage was unavailable. If
+decoding or validation throws, catch it at initialization and show that error to the user instead
+of rendering a success-shaped fallback.
 
 Manual status controls MUST write to `state.statusOverrides[axis][idOrPath]`, persist
 the shared state, then rerender from `applySyncedCoverage(originalManifest)`. The
@@ -961,7 +1153,11 @@ Before delivering, verify:
 - [ ] Quiz has 10+ questions spanning all sections
 - [ ] Quiz questions include difficulty/depth metadata and cover the intended learner path
 - [ ] Quiz includes localStorage sync to coverage state
-- [ ] Level controls work as progressive enhancement and leave default content visible
+- [ ] Quiz has a "Submit quiz to dashboard" action that transfers in-memory results
+- [ ] Every major section has three substantive difficulty lenses and three substantive depth layers
+- [ ] All nine level combinations visibly change guide content and the exact-match quiz set
+- [ ] Quiz totals and progress are recalculated from visible questions after each level change
+- [ ] Level controls work as progressive enhancement and leave useful content visible without JavaScript
 - [ ] HTML is valid and self-contained
 
 ### Coverage Manifest
@@ -981,7 +1177,9 @@ Before delivering, verify:
 - [ ] Gap report lists uncovered items with "Learn" links
 - [ ] Every "Learn" link points to an actual canonical teaching guide section
 - [ ] Export produces valid JSON
-- [ ] localStorage sync reads quiz results on load
+- [ ] Dashboard imports URL-fragment quiz results before its first coverage calculation
+- [ ] Imported results survive in memory when `file://` localStorage is unavailable
+- [ ] Dashboard removes the quiz payload from the URL after import and reports success or failure
 - [ ] Status terminology matches the domain
 - [ ] Difficulty/depth badges and filters work when `learningLevels` is present
 

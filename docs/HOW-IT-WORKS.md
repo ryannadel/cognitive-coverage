@@ -37,7 +37,7 @@ A self-contained interactive HTML page that teaches the project from first princ
 - **Mental model callouts** — analogies that build intuition, not just knowledge
 - **Warning boxes** — things that are easy to misunderstand
 - **Interactive quiz** — 10-20 questions that verify genuine comprehension
-- **Coverage sync** — quiz answers write to localStorage, feeding back to the dashboard
+- **Coverage sync** — a submit action transfers quiz answers to the dashboard, with localStorage retention when available
 
 ### 2. Coverage Manifest (`cognitive-coverage/cognitive-coverage.json`)
 
@@ -67,7 +67,7 @@ A visual status board that reads the manifest and shows:
 - **Flow timelines** — step-by-step diagrams for each traced flow
 - **Gap report** — all uncovered items with "Launch Teaching" buttons
 - **Difficulty/depth filters** — narrow the guide, quiz progress, and gaps to the learner's current path
-- **Live quiz sync** — merges `localStorage` quiz results with `quizMapping`, recalculates item statuses, and updates percentages
+- **Quiz result import** — accepts submitted results from the guide, merges them with `quizMapping`, recalculates item statuses, and updates percentages
 
 ### 4. Artifact Launcher (`cognitive-coverage/cognitive-coverage-open.html`)
 
@@ -136,21 +136,29 @@ This makes artifact generation recoverable: if one write method fails, the agent
 2. User opens dashboard or learning guide from the launcher
 3. Dashboard loads manifest → renders coverage status
 4. User clicks "Learn" on a gap → opens teaching guide at the relevant section
-5. User answers quiz in the guide → correct answers write to localStorage
-6. User returns to dashboard → syncs quiz results → upgrades coverage status
-7. User can also manually mark items via status buttons on the dashboard
-8. Dashboard can export updated manifest as JSON
+5. User answers quiz in the guide → answers are retained in memory and localStorage when available
+6. User clicks "Submit quiz to dashboard" → results travel in the dashboard URL fragment
+7. Dashboard validates and imports the results before rendering → coverage status updates
+8. User can also manually mark items via status buttons on the dashboard
+9. Dashboard can export updated manifest as JSON
 
-The dashboard does not treat the manifest summary as final after page load. It clones the
-manifest, reads `cognitive-coverage-state` from localStorage, maps quiz results through
-`quizMapping`, applies any manual status overrides, and then recalculates every axis
-percentage before drawing the donut, summary bars, cards, and gap report. If quiz results
-are reset, the same recalculation can move coverage downward so stale verified statuses do
-not remain on screen.
+The dashboard does not treat the manifest summary as final after page load. It first imports any
+submitted quiz payload from the URL fragment, removes that payload from the address bar, then
+clones the manifest and merges imported and locally stored `cognitive-coverage-state`. It maps quiz
+results through `quizMapping`, applies manual status overrides, and recalculates every axis before
+drawing the donut, summary bars, cards, and gap report. If quiz results are reset, the same
+recalculation can move coverage downward so stale verified statuses do not remain on screen.
+
+The explicit submit step is required for portable files: browsers do not guarantee that separate
+HTML documents opened with `file://` share one localStorage origin. The URL fragment provides a
+same-browser handoff without a server, and the dashboard retains the imported state in memory even
+when file-based localStorage is unavailable.
 
 ## Learning Levels
 
-Cognitive Coverage can adapt the same material to different learner needs without generating separate artifact sets by default. The manifest may include a `learningLevels` block with two independent axes:
+Cognitive Coverage adapts teaching material to different learner needs without generating separate
+artifact sets by default. The manifest may include a `learningLevels` block with two independent
+axes:
 
 | Axis | Default levels | Meaning |
 |------|----------------|---------|
@@ -159,7 +167,19 @@ Cognitive Coverage can adapt the same material to different learner needs withou
 
 Difficulty and depth are intentionally separate. A beginner deep-dive can patiently unpack a foundational idea, while an advanced overview can summarize an expert-only subsystem quickly. The generated guide defaults to `beginner` + `standard` unless the user or manifest specifies otherwise.
 
-Level metadata appears on files, concepts, flows, areas, modules, and quiz mappings. The guide uses it for progressive disclosure, the dashboard uses it for badges and gap filters, and MCP tools can return or filter next learning targets by difficulty/depth.
+Each major guide section contains three difficulty lenses and three cumulative depth layers.
+Difficulty replaces the framing and assumed background: beginner defines vocabulary and purpose,
+intermediate traces normal mechanics and change paths, and advanced focuses on failure modes,
+tradeoffs, and extension points. Depth controls how much source-anchored detail is shown: overview
+alone, overview plus standard, or all layers through deep-dive.
+
+The quiz contains two questions for every difficulty/depth combination. It shows only the exact
+selected pair and recalculates score, total, and progress from those visible questions. This means
+both controls change the material being taught and tested rather than only changing badges.
+
+Level metadata also appears on files, concepts, flows, areas, modules, and quiz mappings. The
+dashboard uses it for badges and gap filters, and MCP tools can return or filter next learning
+targets by difficulty/depth.
 
 ## Large Corpus Mode
 

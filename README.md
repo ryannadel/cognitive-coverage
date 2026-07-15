@@ -68,7 +68,12 @@ Generated materials can adapt to a 3x3 learning model:
 | **Difficulty** | `beginner`, `intermediate`, `advanced` | Learner background and assumed context |
 | **Depth** | `overview`, `standard`, `deep-dive` | Amount of detail shown in the guide and quiz |
 
-The manifest stores optional level metadata on teachable items and quiz mappings. Guides use it for progressive disclosure, dashboards use it for gap filters and level badges, and MCP tools can return level-aware next learning targets.
+The manifest stores optional level metadata on teachable items and quiz mappings. In the guide,
+changing difficulty swaps the explanation lens (vocabulary, mechanics, or expert tradeoffs), while
+changing depth progressively reveals overview, operational, or implementation detail. The quiz
+also switches to questions for the exact selected pair and recalculates its total. Dashboards use
+the same metadata for gap filters and level badges, and MCP tools can return level-aware next
+learning targets.
 
 ## Quick Start
 
@@ -186,8 +191,8 @@ See [mcp/README.md](mcp/README.md) for Claude Code, Codex, and Cursor setup.
   │  learning-guide.html │                      │
   └──────────┬───────────┘                      │
              │ "Learn" links                    ▼
-  ┌──────────┴───────────┐              localStorage
-  │  Coverage Dashboard  │◄──── reads ──────────┘
+  ┌──────────┴───────────┐           submit results
+  │  Coverage Dashboard  │◄──── URL fragment ───┘
   │ cognitive-coverage   │
   │       .html          │
   └──────────┬───────────┘
@@ -203,10 +208,11 @@ See [mcp/README.md](mcp/README.md) for Claude Code, Codex, and Cursor setup.
 2. **Dashboard** loads the manifest and renders coverage status
 3. **Gap report** shows uncovered items with "Launch Teaching" buttons
 4. Clicking a button opens the **teaching guide** at the relevant section
-5. Answering quiz questions writes results to **localStorage**
-6. Returning to the dashboard **syncs** quiz results through the manifest `quizMapping`, recalculates coverage, and updates the chart, bars, cards, and gap report
-7. You can also **manually** set status via buttons on each card
-8. **Export** the updated manifest as JSON anytime
+5. Answering quiz questions records results in memory and **localStorage**
+6. Clicking **Submit quiz to dashboard** transfers results in the dashboard URL fragment
+7. The dashboard imports those results through the manifest `quizMapping`, recalculates coverage, and updates the chart, bars, cards, and gap report
+8. You can also **manually** set status via buttons on each card
+9. **Export** the updated manifest as JSON anytime
 
 See [docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md) for the full deep dive.
 
